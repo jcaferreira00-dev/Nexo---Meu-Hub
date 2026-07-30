@@ -116,10 +116,8 @@
   [data-theme="dark"] .wheel-svg { filter: drop-shadow(0 18px 40px rgba(0,0,0,0.55)) drop-shadow(0 0 46px rgba(109,94,240,0.18)); }
   .wheel-seg { transition: opacity .18s ease; transform-box: view-box; transform-origin: center; will-change: transform, filter; }
   .wheel-seg.dimmed-seg { opacity:.18; }
-  .metal-ring { stroke: url(#metalLight); }
-  [data-theme="dark"] .metal-ring { stroke: url(#metalDark); }
-  .seam-cap { fill: url(#metalLight); }
-  [data-theme="dark"] .seam-cap { fill: url(#metalDark); }
+  .seg-divider { stroke: url(#metalLight); filter: drop-shadow(0 0 1px rgba(255,255,255,0.6)); }
+  [data-theme="dark"] .seg-divider { stroke: url(#metalDark); filter: drop-shadow(0 0 2px rgba(255,255,255,0.15)); }
   .app-dot { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 3px var(--panel); z-index:2; }
 
   .spoke { position:absolute; left:50%; top:50%; height:2px; width:0; transform-origin:0 50%; background:linear-gradient(90deg, currentColor, transparent); opacity:0; transition:width .3s ease, opacity .3s ease; pointer-events:none; }
@@ -326,7 +324,6 @@
   const size = 440, center = size/2;
   const nodeRadius = 168;   // radius where both the arc centerline and icon nodes sit
   const ringThickness = 84; // arc stroke width -> outer edge = nodeRadius + thickness/2
-  const gapDeg = 7;         // gap between segments, in degrees
   const step = 360 / apps.length;
 
   const segEls = [], nodeEls = [], nodeInnerEls = [], spokeEls = [], dotEls = [];
@@ -336,37 +333,28 @@
     return { x: center + r * Math.sin(rad), y: center - r * Math.cos(rad) };
   }
 
-  // metallic base ring (peeks out around every colored arc, reads as a metal border between segments)
+  // metallic gradients used by the seam dividers between segments
   const defs = document.createElementNS(svgNS, 'defs');
   defs.innerHTML = `
-    <linearGradient id="metalLight" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="metalLight" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="380" y2="380">
       <stop offset="0%" stop-color="#FAFAFC"/>
       <stop offset="28%" stop-color="#C7CAD6"/>
       <stop offset="50%" stop-color="#FFFFFF"/>
       <stop offset="72%" stop-color="#A9ADBE"/>
       <stop offset="100%" stop-color="#F2F3F7"/>
     </linearGradient>
-    <linearGradient id="metalDark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5A5F75"/>
-      <stop offset="28%" stop-color="#1E202A"/>
-      <stop offset="50%" stop-color="#7B8098"/>
-      <stop offset="72%" stop-color="#1A1C24"/>
-      <stop offset="100%" stop-color="#41455A"/>
+    <linearGradient id="metalDark" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="380" y2="380">
+      <stop offset="0%" stop-color="#9AA0B8"/>
+      <stop offset="28%" stop-color="#2C2F3D"/>
+      <stop offset="50%" stop-color="#D6D9E8"/>
+      <stop offset="72%" stop-color="#23262F"/>
+      <stop offset="100%" stop-color="#6B7089"/>
     </linearGradient>`;
   svg.appendChild(defs);
 
-  const metalRing = document.createElementNS(svgNS, 'circle');
-  metalRing.setAttribute('cx', center);
-  metalRing.setAttribute('cy', center);
-  metalRing.setAttribute('r', nodeRadius);
-  metalRing.setAttribute('fill', 'none');
-  metalRing.setAttribute('stroke-width', ringThickness + 12);
-  metalRing.setAttribute('class', 'metal-ring');
-  svg.appendChild(metalRing);
-
   apps.forEach((app, i) => {
-    const segStart = i * step + gapDeg / 2;
-    const segEnd = (i + 1) * step - gapDeg / 2;
+    const segStart = i * step;
+    const segEnd = (i + 1) * step;
     const p1 = pointOn(segStart, nodeRadius);
     const p2 = pointOn(segEnd, nodeRadius);
     const largeArc = (segEnd - segStart) > 180 ? 1 : 0;
@@ -376,7 +364,7 @@
     path.setAttribute('fill', 'none');
     path.setAttribute('stroke', app.color);
     path.setAttribute('stroke-width', ringThickness);
-    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linecap', 'butt');
     path.setAttribute('class', 'wheel-seg');
     path.style.opacity = '0';
     path.style.transition = 'opacity .4s ease';
@@ -385,22 +373,27 @@
     setTimeout(() => { path.style.opacity = app.status === 'empty' ? '0.45' : '1'; }, 40 + i * 55);
   });
 
-  // uniform metallic caps at every seam — painted on top of all segments so no color
-  // structurally "wins" the overlap at the wrap-around edge (0↔n-1 vs the linear middle edges)
-  const seamEls = [];
+  // thin metallic border between each pair of colors — a radial divider line
+  // right at the seam, on top of every segment, instead of a round cap
+  const dividerEls = [];
+  const dividerWidth = 3.5;
   for (let i = 0; i < apps.length; i++) {
     const boundaryAngle = i * step;
-    const bp = pointOn(boundaryAngle, nodeRadius);
-    const seam = document.createElementNS(svgNS, 'circle');
-    seam.setAttribute('cx', bp.x);
-    seam.setAttribute('cy', bp.y);
-    seam.setAttribute('r', ringThickness / 2);
-    seam.setAttribute('class', 'seam-cap');
-    seam.style.opacity = '0';
-    seam.style.transition = 'opacity .4s ease';
-    svg.appendChild(seam);
-    seamEls.push(seam);
-    setTimeout(() => { seam.style.opacity = '1'; }, 60 + i * 55);
+    const inner = pointOn(boundaryAngle, nodeRadius - ringThickness / 2);
+    const outer = pointOn(boundaryAngle, nodeRadius + ringThickness / 2);
+    const divider = document.createElementNS(svgNS, 'line');
+    divider.setAttribute('x1', inner.x);
+    divider.setAttribute('y1', inner.y);
+    divider.setAttribute('x2', outer.x);
+    divider.setAttribute('y2', outer.y);
+    divider.setAttribute('stroke-width', dividerWidth);
+    divider.setAttribute('stroke-linecap', 'round');
+    divider.setAttribute('class', 'seg-divider');
+    divider.style.opacity = '0';
+    divider.style.transition = 'opacity .4s ease';
+    svg.appendChild(divider);
+    dividerEls.push(divider);
+    setTimeout(() => { divider.style.opacity = '1'; }, 60 + i * 55);
   }
 
   apps.forEach((app, i) => {
