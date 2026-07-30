@@ -2,8 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Nexo — Hub de Apps</title>
+<meta name="description" content="Hub central com todos os seus aplicativos, em um só lugar.">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6D5EF0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nexo">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
@@ -103,25 +114,12 @@
 
   .wheel-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter: drop-shadow(0 18px 34px rgba(23,26,35,0.14)); }
   [data-theme="dark"] .wheel-svg { filter: drop-shadow(0 18px 40px rgba(0,0,0,0.55)) drop-shadow(0 0 46px rgba(109,94,240,0.18)); }
-  .wheel-seg { transition: opacity .18s ease, filter .18s ease; transform-box: view-box; transform-origin: center; }
-  .wheel-seg.lift { animation: segLift 1s ease; }
-  @keyframes segLift {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    45% { transform: scale(1.035); filter: brightness(1.16); }
-  }
-  .app-node.lift { animation: nodeLift 1s ease; }
-  @keyframes nodeLift {
-    0%, 100% { transform: translate(-50%,-50%) scale(1); }
-    45% { transform: translate(-50%,-50%) scale(1.14) translateY(-3px); }
-  }
-  .app-dot.lift { animation: dotLift 1s ease; }
-  @keyframes dotLift {
-    0%, 100% { transform: translate(-50%,-50%) scale(1); }
-    45% { transform: translate(-50%,-50%) scale(1.7); }
-  }
+  .wheel-seg { transition: opacity .18s ease; transform-box: view-box; transform-origin: center; will-change: transform, filter; }
   .wheel-seg.dimmed-seg { opacity:.18; }
   .metal-ring { stroke: url(#metalLight); }
   [data-theme="dark"] .metal-ring { stroke: url(#metalDark); }
+  .seam-cap { fill: url(#metalLight); }
+  [data-theme="dark"] .seam-cap { fill: url(#metalDark); }
   .app-dot { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 3px var(--panel); z-index:2; }
 
   .spoke { position:absolute; left:50%; top:50%; height:2px; width:0; transform-origin:0 50%; background:linear-gradient(90deg, currentColor, transparent); opacity:0; transition:width .3s ease, opacity .3s ease; pointer-events:none; }
@@ -136,6 +134,7 @@
   .hole-content.pop { opacity:1; transform:scale(1) translateY(0); }
 
   .app-node { position:absolute; width:70px; height:70px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); cursor:pointer; transform:translate(-50%,-50%) scale(0); transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, border-color .18s ease; border:2.5px solid var(--border-strong); z-index:2; }
+  .app-node-inner { width:100%; height:100%; display:flex; align-items:center; justify-content:center; will-change:transform; }
   .app-node.in { transform:translate(-50%,-50%) scale(1); }
   .app-node:hover { transform:translate(-50%,-50%) scale(1.1); }
   .app-node.active:hover, .app-node.active { transform:translate(-50%,-50%) scale(1.15); }
@@ -306,6 +305,21 @@
 
   let selected = null;
 
+  // favorites persist locally on the device — same no-backend approach as your other apps
+  const FAV_KEY = 'nexo-hub-favorites';
+  function loadFavorites() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+      apps.forEach(app => { if (saved.includes(app.name)) app.fav = true; });
+    } catch (e) { /* ignore corrupted storage */ }
+  }
+  function saveFavorites() {
+    try {
+      localStorage.setItem(FAV_KEY, JSON.stringify(apps.filter(a => a.fav).map(a => a.name)));
+    } catch (e) { /* storage unavailable — fails silently, app still works */ }
+  }
+  loadFavorites();
+
   const wrap = document.getElementById('wheelWrap');
   const svg = document.getElementById('wheelSvg');
   const svgNS = 'http://www.w3.org/2000/svg';
@@ -315,7 +329,7 @@
   const gapDeg = 7;         // gap between segments, in degrees
   const step = 360 / apps.length;
 
-  const segEls = [], nodeEls = [], spokeEls = [], dotEls = [];
+  const segEls = [], nodeEls = [], nodeInnerEls = [], spokeEls = [], dotEls = [];
 
   function pointOn(angleDeg, r) {
     const rad = angleDeg * Math.PI / 180;
@@ -371,6 +385,24 @@
     setTimeout(() => { path.style.opacity = app.status === 'empty' ? '0.45' : '1'; }, 40 + i * 55);
   });
 
+  // uniform metallic caps at every seam — painted on top of all segments so no color
+  // structurally "wins" the overlap at the wrap-around edge (0↔n-1 vs the linear middle edges)
+  const seamEls = [];
+  for (let i = 0; i < apps.length; i++) {
+    const boundaryAngle = i * step;
+    const bp = pointOn(boundaryAngle, nodeRadius);
+    const seam = document.createElementNS(svgNS, 'circle');
+    seam.setAttribute('cx', bp.x);
+    seam.setAttribute('cy', bp.y);
+    seam.setAttribute('r', ringThickness / 2);
+    seam.setAttribute('class', 'seam-cap');
+    seam.style.opacity = '0';
+    seam.style.transition = 'opacity .4s ease';
+    svg.appendChild(seam);
+    seamEls.push(seam);
+    setTimeout(() => { seam.style.opacity = '1'; }, 60 + i * 55);
+  }
+
   apps.forEach((app, i) => {
     const angle = i*step + step/2;
     const rad = angle*Math.PI/180;
@@ -392,11 +424,12 @@
     node.style.top = (center + dy*nodeRadius) + 'px';
     node.style.borderColor = app.color + 'aa';
     node.style.color = app.color;
-    node.innerHTML = `<span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span>`;
+    node.innerHTML = `<div class="app-node-inner"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>`;
     node.addEventListener('click', () => selectApp(i));
     node.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectApp(i);} });
     wrap.appendChild(node);
     nodeEls.push(node);
+    nodeInnerEls.push(node.querySelector('.app-node-inner'));
     setTimeout(()=>node.classList.add('in'), 60 + i*55);
 
     // small accent dot sitting inside the segment, just beside the icon
@@ -490,7 +523,7 @@
       </div>`;
 
     if (!isEmpty) {
-      document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; renderDetail(); renderFavorites(); });
+      document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; saveFavorites(); renderDetail(); renderFavorites(); });
       document.getElementById('openBtn').addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
       document.getElementById('copyBtn').addEventListener('click', (e) => {
         navigator.clipboard.writeText(app.url).then(() => {
@@ -560,25 +593,41 @@
   optDark.addEventListener('click', () => setTheme('dark'));
   setTheme('light');
 
-  // periodic "fish scale" ripple: each segment briefly lifts and settles, in sequence around the ring
+  // continuous rippling wave — one smooth bump travels around the ring forever,
+  // like a wave passing through, instead of each icon flashing on/off in turn.
+  // Runs on requestAnimationFrame and writes transforms directly, fully independent
+  // from the selection state (which lives on the outer .app-node via CSS transitions),
+  // so clicking an icon never gets interrupted or cut short by the ripple.
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function runWave() {
+  const wave = { period: 8000, widthDeg: 110, nodeLift: 0.12, nodeRise: 4, segScale: 0.028, segGlow: 0.14, dotScale: 0.6 };
+
+  function angDiff(a, b) { return ((a - b + 540) % 360) - 180; }
+
+  function tickWave(now) {
     apps.forEach((app, i) => {
-      setTimeout(() => {
-        segEls[i].classList.add('lift');
-        nodeEls[i].classList.add('lift');
-        if (dotEls[i]) dotEls[i].classList.add('lift');
-        setTimeout(() => {
-          segEls[i].classList.remove('lift');
-          nodeEls[i].classList.remove('lift');
-          if (dotEls[i]) dotEls[i].classList.remove('lift');
-        }, 1000);
-      }, i * 110);
+      const nodeAngle = i * step + step / 2;
+      const waveAngle = (now / wave.period * 360) % 360;
+      const d = angDiff(nodeAngle, waveAngle);
+      let influence = 0;
+      if (Math.abs(d) < wave.widthDeg / 2) {
+        influence = Math.cos((d / (wave.widthDeg / 2)) * (Math.PI / 2));
+        influence = influence * influence; // smoother, narrower peak
+      }
+      const inner = nodeInnerEls[i];
+      if (inner) inner.style.transform = `scale(${1 + influence * wave.nodeLift}) translateY(${-influence * wave.nodeRise}px)`;
+      const seg = segEls[i];
+      if (seg) { seg.style.transform = `scale(${1 + influence * wave.segScale})`; seg.style.filter = `brightness(${1 + influence * wave.segGlow})`; }
+      const dot = dotEls[i];
+      if (dot) dot.style.transform = `translate(-50%,-50%) scale(${1 + influence * wave.dotScale})`;
     });
+    requestAnimationFrame(tickWave);
   }
-  if (!reduceMotion) {
-    setTimeout(runWave, 1800);
-    setInterval(runWave, 6500);
+  if (!reduceMotion) requestAnimationFrame(tickWave);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW falhou:', err));
+    });
   }
 </script>
 
