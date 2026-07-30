@@ -101,18 +101,33 @@
   .wheel-col { flex-shrink:0; display:flex; flex-direction:column; align-items:center; position:relative; }
   .wheel-wrap { position:relative; width:440px; height:440px; }
 
-  .wheel-ring { position:absolute; inset:0; border-radius:50%; box-shadow:0 0 0 3px var(--panel), 0 0 0 5px var(--border-strong), var(--shadow-lg); overflow:hidden; }
-  [data-theme="dark"] .wheel-ring { box-shadow:0 0 0 3px var(--panel), 0 0 0 5px var(--border-strong), 0 0 70px -10px rgba(109,94,240,0.35), var(--shadow-lg); }
-  .wheel-sheen { position:absolute; inset:-40%; border-radius:50%; background:conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.16) 8deg, transparent 20deg, transparent 360deg); animation: sweep 9s linear infinite; pointer-events:none; }
-  [data-theme="dark"] .wheel-sheen { background:conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.08) 8deg, transparent 20deg, transparent 360deg); }
-  @keyframes sweep { to { transform: rotate(360deg); } }
-
-  .wheel-dividers { position:absolute; inset:0; border-radius:50%; pointer-events:none; }
+  .wheel-svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter: drop-shadow(0 18px 34px rgba(23,26,35,0.14)); }
+  [data-theme="dark"] .wheel-svg { filter: drop-shadow(0 18px 40px rgba(0,0,0,0.55)) drop-shadow(0 0 46px rgba(109,94,240,0.18)); }
+  .wheel-seg { transition: opacity .18s ease, filter .18s ease; transform-box: view-box; transform-origin: center; }
+  .wheel-seg.lift { animation: segLift 1s ease; }
+  @keyframes segLift {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    45% { transform: scale(1.035); filter: brightness(1.16); }
+  }
+  .app-node.lift { animation: nodeLift 1s ease; }
+  @keyframes nodeLift {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); }
+    45% { transform: translate(-50%,-50%) scale(1.14) translateY(-3px); }
+  }
+  .app-dot.lift { animation: dotLift 1s ease; }
+  @keyframes dotLift {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); }
+    45% { transform: translate(-50%,-50%) scale(1.7); }
+  }
+  .wheel-seg.dimmed-seg { opacity:.18; }
+  .metal-ring { stroke: url(#metalLight); }
+  [data-theme="dark"] .metal-ring { stroke: url(#metalDark); }
+  .app-dot { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 3px var(--panel); z-index:2; }
 
   .spoke { position:absolute; left:50%; top:50%; height:2px; width:0; transform-origin:0 50%; background:linear-gradient(90deg, currentColor, transparent); opacity:0; transition:width .3s ease, opacity .3s ease; pointer-events:none; }
   .spoke.show { opacity:.55; }
 
-  .wheel-hole { position:absolute; inset:82px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; box-shadow:inset 0 0 0 2px var(--border-strong), var(--shadow); text-align:center; padding:10px; z-index:2; }
+  .wheel-hole { position:absolute; inset:94px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px; box-shadow:inset 0 0 0 2px var(--border-strong), var(--shadow); text-align:center; padding:10px; z-index:2; }
   .wheel-hole .wh-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:6px; border:1.5px solid var(--border-strong); transition:border-color .2s ease, background .2s ease; }
   .wheel-hole .wh-icon .material-symbols-outlined { font-size:18px; }
   .wheel-hole h5 { font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:600; max-width:150px; line-height:1.25; }
@@ -126,11 +141,10 @@
   .app-node.active:hover, .app-node.active { transform:translate(-50%,-50%) scale(1.15); }
   .app-node:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
   .app-node .material-symbols-outlined { font-size:27px; }
-  .app-node.active { box-shadow: 0 0 0 5px currentColor22, var(--shadow-lg); }
+  .app-node.active { box-shadow: 0 0 0 5px currentColor22, 0 0 26px 4px currentColor33, var(--shadow-lg); border-color: currentColor; }
   .app-node.dimmed { opacity:.2; pointer-events:none; }
   .app-node.placeholder { border-style:dashed; }
 
-  .app-dot { position:absolute; width:7px; height:7px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 2px var(--panel); z-index:2; }
 
   /* DETAIL PANEL */
   .detail-panel { flex:1; min-width:0; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:26px; display:flex; flex-direction:column; box-shadow:var(--shadow); }
@@ -251,15 +265,14 @@
     </div>
 
     <div class="status-strip">
-      <div><span class="status-dot on"></span><b>6</b> apps com link ativo</div>
+      <div><span class="status-dot on"></span><b>7</b> apps com link ativo</div>
       <div><b id="favCountTop">0</b> favoritos</div>
     </div>
 
     <div class="hub-row">
       <div class="wheel-col">
         <div class="wheel-wrap" id="wheelWrap">
-          <div class="wheel-ring" id="wheelRing"><div class="wheel-sheen"></div></div>
-          <div class="wheel-dividers" id="wheelDividers"></div>
+          <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 440 440"></svg>
           <div class="wheel-hole" id="wheelHole"></div>
         </div>
       </div>
@@ -288,28 +301,75 @@
     { name:"Holerite", sub:"Calcula o salário líquido com IRRF, INSS, horas extras e adiantamento personalizados.", icon:"receipt_long", color:"#06B6D4", status:"online", last:"Há 1 semana", fav:false, url:"https://jcaferreira00-dev.github.io/cardHolerite/" },
     { name:"Patrimônio", sub:"Reúne investimentos, imóveis e dívidas, com cotações atualizadas via Brapi.", icon:"trending_up", color:"#10B981", status:"online", last:"Há 4 dias", fav:false, url:"https://jcaferreira00-dev.github.io/Patrimonio/" },
     { name:"Minhas Contas", sub:"Controla receitas e pagamentos mês a mês, com fechamento e histórico.", icon:"account_balance", color:"#3B82F6", status:"online", last:"Há 3 dias", fav:false, url:"https://jcaferreira00-dev.github.io/ContasdoMes/" },
-    { name:"Novo app", sub:"Reserve esse espaço pro próximo app que você lançar.", icon:"add", color:"#94A3B8", status:"empty", last:"—", fav:false, url:null },
+    { name:"Caderneta", sub:"Controla quem te deve fiado, valores mensais combinados e o que já foi recebido.", icon:"menu_book", color:"#EC4899", status:"online", last:"Novo", fav:false, url:"https://jcaferreira00-dev.github.io/Fiado/" },
   ];
 
   let selected = null;
 
   const wrap = document.getElementById('wheelWrap');
-  const ring = document.getElementById('wheelRing');
-  const dividers = document.getElementById('wheelDividers');
+  const svg = document.getElementById('wheelSvg');
+  const svgNS = 'http://www.w3.org/2000/svg';
   const size = 440, center = size/2;
-  const nodeRadius = 170, dotRadius = 205;
+  const nodeRadius = 168;   // radius where both the arc centerline and icon nodes sit
+  const ringThickness = 84; // arc stroke width -> outer edge = nodeRadius + thickness/2
+  const gapDeg = 7;         // gap between segments, in degrees
   const step = 360 / apps.length;
 
-  const stops = apps.map((a,i)=>`${a.color} ${i*step + step/2}deg`).join(', ');
-  ring.style.background = `conic-gradient(from 0deg, ${stops}, ${apps[0].color} ${360+step/2}deg)`;
+  const segEls = [], nodeEls = [], spokeEls = [], dotEls = [];
 
-  let divStr = apps.map((a,i)=>{
-    const b = i*step;
-    return `transparent ${b-0.6}deg, var(--panel) ${b-0.6}deg, var(--panel) ${b+0.6}deg, transparent ${b+0.6}deg`;
-  }).join(', ');
-  dividers.style.background = `conic-gradient(from 0deg, ${divStr})`;
+  function pointOn(angleDeg, r) {
+    const rad = angleDeg * Math.PI / 180;
+    return { x: center + r * Math.sin(rad), y: center - r * Math.cos(rad) };
+  }
 
-  const nodeEls = [], spokeEls = [];
+  // metallic base ring (peeks out around every colored arc, reads as a metal border between segments)
+  const defs = document.createElementNS(svgNS, 'defs');
+  defs.innerHTML = `
+    <linearGradient id="metalLight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FAFAFC"/>
+      <stop offset="28%" stop-color="#C7CAD6"/>
+      <stop offset="50%" stop-color="#FFFFFF"/>
+      <stop offset="72%" stop-color="#A9ADBE"/>
+      <stop offset="100%" stop-color="#F2F3F7"/>
+    </linearGradient>
+    <linearGradient id="metalDark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5A5F75"/>
+      <stop offset="28%" stop-color="#1E202A"/>
+      <stop offset="50%" stop-color="#7B8098"/>
+      <stop offset="72%" stop-color="#1A1C24"/>
+      <stop offset="100%" stop-color="#41455A"/>
+    </linearGradient>`;
+  svg.appendChild(defs);
+
+  const metalRing = document.createElementNS(svgNS, 'circle');
+  metalRing.setAttribute('cx', center);
+  metalRing.setAttribute('cy', center);
+  metalRing.setAttribute('r', nodeRadius);
+  metalRing.setAttribute('fill', 'none');
+  metalRing.setAttribute('stroke-width', ringThickness + 12);
+  metalRing.setAttribute('class', 'metal-ring');
+  svg.appendChild(metalRing);
+
+  apps.forEach((app, i) => {
+    const segStart = i * step + gapDeg / 2;
+    const segEnd = (i + 1) * step - gapDeg / 2;
+    const p1 = pointOn(segStart, nodeRadius);
+    const p2 = pointOn(segEnd, nodeRadius);
+    const largeArc = (segEnd - segStart) > 180 ? 1 : 0;
+
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', `M ${p1.x} ${p1.y} A ${nodeRadius} ${nodeRadius} 0 ${largeArc} 1 ${p2.x} ${p2.y}`);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', app.color);
+    path.setAttribute('stroke-width', ringThickness);
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('class', 'wheel-seg');
+    path.style.opacity = '0';
+    path.style.transition = 'opacity .4s ease';
+    svg.appendChild(path);
+    segEls.push(path);
+    setTimeout(() => { path.style.opacity = app.status === 'empty' ? '0.45' : '1'; }, 40 + i * 55);
+  });
 
   apps.forEach((app, i) => {
     const angle = i*step + step/2;
@@ -339,12 +399,20 @@
     nodeEls.push(node);
     setTimeout(()=>node.classList.add('in'), 60 + i*55);
 
+    // small accent dot sitting inside the segment, just beside the icon
+    const dotAngle = angle - 18;
+    const dp = pointOn(dotAngle, nodeRadius);
     const dot = document.createElement('div');
     dot.className = 'app-dot';
+    dot.style.left = dp.x + 'px';
+    dot.style.top = dp.y + 'px';
     dot.style.background = app.color;
-    dot.style.left = (center + dx*dotRadius) + 'px';
-    dot.style.top = (center + dy*dotRadius) + 'px';
+    dot.style.boxShadow = `0 0 0 3px var(--panel), 0 0 7px 1px ${app.color}88`;
+    dot.style.opacity = '0';
+    dot.style.transition = 'opacity .3s ease';
     wrap.appendChild(dot);
+    dotEls.push(dot);
+    setTimeout(()=>{ dot.style.opacity = app.status === 'empty' ? '0.35' : '1'; }, 90 + i*55);
   });
 
   const mobileList = document.getElementById('mobileList');
@@ -367,7 +435,7 @@
     let inner;
     if (selected === null) {
       const onlineCount = apps.filter(a=>a.status==='online').length;
-      inner = `<div class="wh-icon"><span class="material-symbols-outlined">apps</span></div><h5>${apps.length-1} apps</h5><span>${onlineCount} online</span>`;
+      inner = `<div class="wh-icon"><span class="material-symbols-outlined">apps</span></div><h5>${apps.length} apps</h5><span>${onlineCount} online</span>`;
     } else {
       const app = apps[selected];
       inner = `<div class="wh-icon" style="background:${app.color}18;border-color:${app.color}88;"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div><h5>${app.name}</h5><span>${app.status==='online'?'online':'reservado'}</span>`;
@@ -386,7 +454,7 @@
           <span class="material-symbols-outlined">touch_app</span>
           Clique em um app no anel ao lado pra ver detalhes, favoritar ou abrir.
           <div class="stats-row">
-            <div class="stat-chip"><b>${apps.length-1}</b>apps</div>
+            <div class="stat-chip"><b>${apps.length}</b>apps</div>
             <div class="stat-chip"><b>${favCount}</b>favoritos</div>
           </div>
         </div>`;
@@ -471,6 +539,7 @@
     apps.forEach((app, i) => {
       const match = !q || app.name.toLowerCase().includes(q) || app.sub.toLowerCase().includes(q);
       nodeEls[i].classList.toggle('dimmed', !match);
+      segEls[i].classList.toggle('dimmed-seg', !match);
       mRows[i].classList.toggle('hidden-row', !match);
     });
   });
@@ -490,6 +559,27 @@
   optLight.addEventListener('click', () => setTheme('light'));
   optDark.addEventListener('click', () => setTheme('dark'));
   setTheme('light');
+
+  // periodic "fish scale" ripple: each segment briefly lifts and settles, in sequence around the ring
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function runWave() {
+    apps.forEach((app, i) => {
+      setTimeout(() => {
+        segEls[i].classList.add('lift');
+        nodeEls[i].classList.add('lift');
+        if (dotEls[i]) dotEls[i].classList.add('lift');
+        setTimeout(() => {
+          segEls[i].classList.remove('lift');
+          nodeEls[i].classList.remove('lift');
+          if (dotEls[i]) dotEls[i].classList.remove('lift');
+        }, 1000);
+      }, i * 110);
+    });
+  }
+  if (!reduceMotion) {
+    setTimeout(runWave, 1800);
+    setInterval(runWave, 6500);
+  }
 </script>
 
 </body>
