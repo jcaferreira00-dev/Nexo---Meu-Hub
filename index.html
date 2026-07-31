@@ -2,8 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Nexo — Hub de Apps</title>
+<meta name="description" content="Hub central com todos os seus aplicativos, em um só lugar.">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6D5EF0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nexo">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
@@ -68,13 +79,6 @@
   .brand-mark svg { width:20px; height:20px; }
   .brand-name { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16px; }
   .brand-sub { font-size:11.5px; color:var(--text-dim); }
-  /* WORKSPACE SWITCHER — 3 guias: Pessoal / Profissional / Advocacia */
-  .workspace-tabs { display:flex; gap:6px; background:var(--panel-2); border:1px solid var(--border); border-radius:14px; padding:5px; margin-bottom:22px; }
-  .workspace-tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 4px 8px; border-radius:10px; cursor:pointer; color:var(--text-dim); font-size:10.5px; font-weight:600; border:1px solid transparent; transition:background .15s,color .15s,border-color .15s; text-align:center; }
-  .workspace-tab .material-symbols-outlined { font-size:19px; }
-  .workspace-tab:hover { color:var(--text); }
-  .workspace-tab.active { background:var(--panel); color:var(--accent); border-color:#6D5EF055; box-shadow:var(--shadow); }
-
   .nav { display:flex; flex-direction:column; gap:3px; }
   .nav-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:12px; color:var(--text-dim); font-size:14px; font-weight:500; cursor:pointer; border:1px solid transparent; transition:background .15s,color .15s,border-color .15s; }
   .nav-item .material-symbols-outlined { font-size:20px; }
@@ -112,10 +116,8 @@
   [data-theme="dark"] .wheel-svg { filter: drop-shadow(0 18px 40px rgba(0,0,0,0.55)) drop-shadow(0 0 46px rgba(109,94,240,0.18)); }
   .wheel-seg { transition: opacity .18s ease; transform-box: view-box; transform-origin: center; will-change: transform, filter; }
   .wheel-seg.dimmed-seg { opacity:.18; }
-  .metal-ring { stroke: url(#metalLight); }
-  [data-theme="dark"] .metal-ring { stroke: url(#metalDark); }
-  .seam-cap { fill: url(#metalLight); }
-  [data-theme="dark"] .seam-cap { fill: url(#metalDark); }
+  .seg-divider { stroke: url(#metalLight); filter: drop-shadow(0 0 1px rgba(255,255,255,0.6)); }
+  [data-theme="dark"] .seg-divider { stroke: url(#metalDark); filter: drop-shadow(0 0 2px rgba(255,255,255,0.15)); }
   .app-dot { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 3px var(--panel); z-index:2; }
 
   .spoke { position:absolute; left:50%; top:50%; height:2px; width:0; transform-origin:0 50%; background:linear-gradient(90deg, currentColor, transparent); opacity:0; transition:width .3s ease, opacity .3s ease; pointer-events:none; }
@@ -230,14 +232,6 @@
         <div class="brand-sub">meu hub de apps</div>
       </div>
     </div>
-
-    <!-- Guias de workspace: troque icon/label de cada uma no objeto `workspaces` no script -->
-    <div class="workspace-tabs" id="workspaceTabs">
-      <div class="workspace-tab active" data-ws="pessoal"><span class="material-symbols-outlined">home</span>Pessoal</div>
-      <div class="workspace-tab" data-ws="profissional"><span class="material-symbols-outlined">work</span>Profissional</div>
-      <div class="workspace-tab" data-ws="advocacia"><span class="material-symbols-outlined">gavel</span>Advocacia</div>
-    </div>
-
     <nav class="nav">
       <div class="nav-item active"><span class="material-symbols-outlined">grid_view</span>Início</div>
       <div class="nav-item"><span class="material-symbols-outlined">star</span>Favoritos</div>
@@ -255,8 +249,8 @@
     <div class="topbar">
       <div class="greeting">
         <div class="greeting-wave">Olá, 👋</div>
-        <h1 id="greetTitle">Bem-vindo ao seu hub</h1>
-        <p id="greetSub">Clique em um app no anel pra ver detalhes, favoritar ou abrir.</p>
+        <h1>Bem-vindo ao seu hub</h1>
+        <p>Clique em um app no anel pra ver detalhes, favoritar ou abrir.</p>
       </div>
       <div class="topbar-right">
         <div class="search">
@@ -268,7 +262,7 @@
     </div>
 
     <div class="status-strip">
-      <div><span class="status-dot on"></span><b id="statusOnlineCount">7</b> apps com link ativo</div>
+      <div><span class="status-dot on"></span><b>7</b> apps com link ativo</div>
       <div><b id="favCountTop">0</b> favoritos</div>
     </div>
 
@@ -297,58 +291,32 @@
 </div>
 
 <script>
-  // ===================================================================
-  // WORKSPACES — cada guia da barra lateral tem seu próprio label, ícone
-  // (mostrado no menu) e lista de apps (a "roda" é sempre a mesma, só os
-  // cards mudam). Para editar depois:
-  //   - label: nome que aparece na guia lateral
-  //   - icon: nome do ícone Material Symbols (fonts.google.com/icons)
-  //   - greeting: título/subtítulo mostrados no topo ao trocar de guia
-  //   - apps: cada app tem name, sub (descrição), icon, color (hex),
-  //     status ("online" ou "empty" pra placeholder), last, fav, url
-  // ===================================================================
-  const workspaces = {
-    pessoal: {
-      label: 'Pessoal',
-      icon: 'home', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Bem-vindo ao seu hub', sub: 'Clique em um app no anel pra ver detalhes, favoritar ou abrir.' },
-      apps: [
-        { name:"Gestão Financeira", sub:"Acompanha receitas, contas do mês, cartões de crédito e dívidas em um único painel.", icon:"account_balance_wallet", color:"#F59E0B", status:"online", last:"Hoje", fav:false, url:"https://jcaferreira00-dev.github.io/GASTOS-MENSAIS/" },
-        { name:"Tem Direito?", sub:"Calculadoras gratuitas para descobrir benefícios sociais como PIS/Pasep, FGTS e Bolsa Família.", icon:"balance", color:"#E11D48", status:"online", last:"Ontem", fav:true, url:"https://consultarbeneficios.com.br/" },
-        { name:"Meu Bolso", sub:"Organiza o orçamento em envelopes digitais, mês a mês, sem depender de nuvem.", icon:"savings", color:"#8B5CF6", status:"online", last:"Há 2 dias", fav:true, url:"https://jcaferreira00-dev.github.io/MeuBolso/" },
-        { name:"Holerite", sub:"Calcula o salário líquido com IRRF, INSS, horas extras e adiantamento personalizados.", icon:"receipt_long", color:"#06B6D4", status:"online", last:"Há 1 semana", fav:false, url:"https://jcaferreira00-dev.github.io/cardHolerite/" },
-        { name:"Patrimônio", sub:"Reúne investimentos, imóveis e dívidas, com cotações atualizadas via Brapi.", icon:"trending_up", color:"#10B981", status:"online", last:"Há 4 dias", fav:false, url:"https://jcaferreira00-dev.github.io/Patrimonio/" },
-        { name:"Minhas Contas", sub:"Controla receitas e pagamentos mês a mês, com fechamento e histórico.", icon:"account_balance", color:"#3B82F6", status:"online", last:"Há 3 dias", fav:false, url:"https://jcaferreira00-dev.github.io/ContasdoMes/" },
-        { name:"Caderneta", sub:"Controla quem te deve fiado, valores mensais combinados e o que já foi recebido.", icon:"menu_book", color:"#EC4899", status:"online", last:"Novo", fav:false, url:"https://jcaferreira00-dev.github.io/Fiado/" },
-      ]
-    },
-    profissional: {
-      label: 'Profissional', // <- troque pelo nome que preferir, ex: "Klabin"
-      icon: 'work', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Seus links de trabalho', sub: 'Edite estes cards com nome, ícone e link de cada ferramenta que você usa no trabalho.' },
-      apps: [
-        { name:"App 1", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#3B82F6", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 2", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#10B981", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 3", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#F59E0B", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 4", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#8B5CF6", status:"empty", last:"—", fav:false, url:"" },
-      ]
-    },
-    advocacia: {
-      label: 'Advocacia',
-      icon: 'gavel', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Seus links de advocacia', sub: 'Edite estes cards com nome, ícone e link de cada ferramenta que você usa na advocacia.' },
-      apps: [
-        { name:"App 1", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#E11D48", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 2", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#06B6D4", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 3", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#EC4899", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 4", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#6D5EF0", status:"empty", last:"—", fav:false, url:"" },
-      ]
-    }
-  };
+  const apps = [
+    { name:"Gestão Financeira", sub:"Acompanha receitas, contas do mês, cartões de crédito e dívidas em um único painel.", icon:"account_balance_wallet", color:"#F59E0B", status:"online", last:"Hoje", fav:false, url:"https://jcaferreira00-dev.github.io/GASTOS-MENSAIS/" },
+    { name:"Tem Direito?", sub:"Calculadoras gratuitas para descobrir benefícios sociais como PIS/Pasep, FGTS e Bolsa Família.", icon:"balance", color:"#E11D48", status:"online", last:"Ontem", fav:true, url:"https://consultarbeneficios.com.br/" },
+    { name:"Meu Bolso", sub:"Organiza o orçamento em envelopes digitais, mês a mês, sem depender de nuvem.", icon:"savings", color:"#8B5CF6", status:"online", last:"Há 2 dias", fav:true, url:"https://jcaferreira00-dev.github.io/MeuBolso/" },
+    { name:"Holerite", sub:"Calcula o salário líquido com IRRF, INSS, horas extras e adiantamento personalizados.", icon:"receipt_long", color:"#06B6D4", status:"online", last:"Há 1 semana", fav:false, url:"https://jcaferreira00-dev.github.io/cardHolerite/" },
+    { name:"Patrimônio", sub:"Reúne investimentos, imóveis e dívidas, com cotações atualizadas via Brapi.", icon:"trending_up", color:"#10B981", status:"online", last:"Há 4 dias", fav:false, url:"https://jcaferreira00-dev.github.io/Patrimonio/" },
+    { name:"Minhas Contas", sub:"Controla receitas e pagamentos mês a mês, com fechamento e histórico.", icon:"account_balance", color:"#3B82F6", status:"online", last:"Há 3 dias", fav:false, url:"https://jcaferreira00-dev.github.io/ContasdoMes/" },
+    { name:"Caderneta", sub:"Controla quem te deve fiado, valores mensais combinados e o que já foi recebido.", icon:"menu_book", color:"#EC4899", status:"online", last:"Novo", fav:false, url:"https://jcaferreira00-dev.github.io/Fiado/" },
+  ];
 
-  let currentWs = 'pessoal';
-  let apps = workspaces[currentWs].apps;
   let selected = null;
+
+  // favorites persist locally on the device — same no-backend approach as your other apps
+  const FAV_KEY = 'nexo-hub-favorites';
+  function loadFavorites() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+      apps.forEach(app => { if (saved.includes(app.name)) app.fav = true; });
+    } catch (e) { /* ignore corrupted storage */ }
+  }
+  function saveFavorites() {
+    try {
+      localStorage.setItem(FAV_KEY, JSON.stringify(apps.filter(a => a.fav).map(a => a.name)));
+    } catch (e) { /* storage unavailable — fails silently, app still works */ }
+  }
+  loadFavorites();
 
   const wrap = document.getElementById('wheelWrap');
   const svg = document.getElementById('wheelSvg');
@@ -356,181 +324,137 @@
   const size = 440, center = size/2;
   const nodeRadius = 168;   // radius where both the arc centerline and icon nodes sit
   const ringThickness = 84; // arc stroke width -> outer edge = nodeRadius + thickness/2
-  const gapDeg = 7;         // gap between segments, in degrees
-  let step = 360 / apps.length;
+  const step = 360 / apps.length;
 
-  let segEls = [], nodeEls = [], nodeInnerEls = [], spokeEls = [], dotEls = [];
-  const mobileList = document.getElementById('mobileList');
-  let mRows = [];
+  const segEls = [], nodeEls = [], nodeInnerEls = [], spokeEls = [], dotEls = [];
 
   function pointOn(angleDeg, r) {
     const rad = angleDeg * Math.PI / 180;
     return { x: center + r * Math.sin(rad), y: center - r * Math.cos(rad) };
   }
 
-  // Constrói a roda (anel SVG + ícones + raios + pontos) e a lista mobile a
-  // partir do array `apps` atual. Chamada de novo toda vez que a guia de
-  // workspace muda, para trocar os ícones mantendo o mesmo visual de roda.
-  function buildWheel() {
-    svg.innerHTML = '';
-    wrap.querySelectorAll('.spoke, .app-node, .app-dot').forEach(el => el.remove());
-    segEls = []; nodeEls = []; nodeInnerEls = []; spokeEls = []; dotEls = [];
-    step = 360 / apps.length;
+  // metallic gradients used by the seam dividers between segments
+  const defs = document.createElementNS(svgNS, 'defs');
+  defs.innerHTML = `
+    <linearGradient id="metalLight" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="380" y2="380">
+      <stop offset="0%" stop-color="#FAFAFC"/>
+      <stop offset="28%" stop-color="#C7CAD6"/>
+      <stop offset="50%" stop-color="#FFFFFF"/>
+      <stop offset="72%" stop-color="#A9ADBE"/>
+      <stop offset="100%" stop-color="#F2F3F7"/>
+    </linearGradient>
+    <linearGradient id="metalDark" gradientUnits="userSpaceOnUse" x1="60" y1="60" x2="380" y2="380">
+      <stop offset="0%" stop-color="#9AA0B8"/>
+      <stop offset="28%" stop-color="#2C2F3D"/>
+      <stop offset="50%" stop-color="#D6D9E8"/>
+      <stop offset="72%" stop-color="#23262F"/>
+      <stop offset="100%" stop-color="#6B7089"/>
+    </linearGradient>`;
+  svg.appendChild(defs);
 
-    // metallic base ring (peeks out around every colored arc, reads as a metal border between segments)
-    const defs = document.createElementNS(svgNS, 'defs');
-    defs.innerHTML = `
-      <linearGradient id="metalLight" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#FAFAFC"/>
-        <stop offset="28%" stop-color="#C7CAD6"/>
-        <stop offset="50%" stop-color="#FFFFFF"/>
-        <stop offset="72%" stop-color="#A9ADBE"/>
-        <stop offset="100%" stop-color="#F2F3F7"/>
-      </linearGradient>
-      <linearGradient id="metalDark" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#5A5F75"/>
-        <stop offset="28%" stop-color="#1E202A"/>
-        <stop offset="50%" stop-color="#7B8098"/>
-        <stop offset="72%" stop-color="#1A1C24"/>
-        <stop offset="100%" stop-color="#41455A"/>
-      </linearGradient>`;
-    svg.appendChild(defs);
+  apps.forEach((app, i) => {
+    const segStart = i * step;
+    const segEnd = (i + 1) * step;
+    const p1 = pointOn(segStart, nodeRadius);
+    const p2 = pointOn(segEnd, nodeRadius);
+    const largeArc = (segEnd - segStart) > 180 ? 1 : 0;
 
-    const metalRing = document.createElementNS(svgNS, 'circle');
-    metalRing.setAttribute('cx', center);
-    metalRing.setAttribute('cy', center);
-    metalRing.setAttribute('r', nodeRadius);
-    metalRing.setAttribute('fill', 'none');
-    metalRing.setAttribute('stroke-width', ringThickness + 12);
-    metalRing.setAttribute('class', 'metal-ring');
-    svg.appendChild(metalRing);
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', `M ${p1.x} ${p1.y} A ${nodeRadius} ${nodeRadius} 0 ${largeArc} 1 ${p2.x} ${p2.y}`);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', app.color);
+    path.setAttribute('stroke-width', ringThickness);
+    path.setAttribute('stroke-linecap', 'butt');
+    path.setAttribute('class', 'wheel-seg');
+    path.style.opacity = '0';
+    path.style.transition = 'opacity .4s ease';
+    svg.appendChild(path);
+    segEls.push(path);
+    setTimeout(() => { path.style.opacity = app.status === 'empty' ? '0.45' : '1'; }, 40 + i * 55);
+  });
 
-    apps.forEach((app, i) => {
-      const segStart = i * step + gapDeg / 2;
-      const segEnd = (i + 1) * step - gapDeg / 2;
-      const p1 = pointOn(segStart, nodeRadius);
-      const p2 = pointOn(segEnd, nodeRadius);
-      const largeArc = (segEnd - segStart) > 180 ? 1 : 0;
-
-      const path = document.createElementNS(svgNS, 'path');
-      path.setAttribute('d', `M ${p1.x} ${p1.y} A ${nodeRadius} ${nodeRadius} 0 ${largeArc} 1 ${p2.x} ${p2.y}`);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', app.color);
-      path.setAttribute('stroke-width', ringThickness);
-      path.setAttribute('stroke-linecap', 'round');
-      path.setAttribute('class', 'wheel-seg');
-      path.style.opacity = '0';
-      path.style.transition = 'opacity .4s ease';
-      svg.appendChild(path);
-      segEls.push(path);
-      setTimeout(() => { path.style.opacity = app.status === 'empty' ? '0.45' : '1'; }, 40 + i * 55);
-    });
-
-    // uniform metallic caps at every seam — painted on top of all segments so no color
-    // structurally "wins" the overlap at the wrap-around edge (0↔n-1 vs the linear middle edges)
-    for (let i = 0; i < apps.length; i++) {
-      const boundaryAngle = i * step;
-      const bp = pointOn(boundaryAngle, nodeRadius);
-      const seam = document.createElementNS(svgNS, 'circle');
-      seam.setAttribute('cx', bp.x);
-      seam.setAttribute('cy', bp.y);
-      seam.setAttribute('r', ringThickness / 2);
-      seam.setAttribute('class', 'seam-cap');
-      seam.style.opacity = '0';
-      seam.style.transition = 'opacity .4s ease';
-      svg.appendChild(seam);
-      setTimeout(() => { seam.style.opacity = '1'; }, 60 + i * 55);
-    }
-
-    apps.forEach((app, i) => {
-      const angle = i*step + step/2;
-      const rad = angle*Math.PI/180;
-      const dx = Math.sin(rad), dy = -Math.cos(rad);
-
-      const spoke = document.createElement('div');
-      spoke.className = 'spoke';
-      spoke.style.color = app.color;
-      spoke.style.left = center + 'px';
-      spoke.style.top = center + 'px';
-      spoke.style.transform = `rotate(${angle-90}deg)`;
-      wrap.appendChild(spoke);
-      spokeEls.push({el:spoke, len: nodeRadius - 20});
-
-      const node = document.createElement('div');
-      node.className = 'app-node' + (app.status === 'empty' ? ' placeholder' : '');
-      node.tabIndex = 0;
-      node.style.left = (center + dx*nodeRadius) + 'px';
-      node.style.top = (center + dy*nodeRadius) + 'px';
-      node.style.borderColor = app.color + 'aa';
-      node.style.color = app.color;
-      node.innerHTML = `<div class="app-node-inner"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>`;
-      node.addEventListener('click', () => selectApp(i));
-      node.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectApp(i);} });
-      wrap.appendChild(node);
-      nodeEls.push(node);
-      nodeInnerEls.push(node.querySelector('.app-node-inner'));
-      setTimeout(()=>node.classList.add('in'), 60 + i*55);
-
-      // small accent dot sitting inside the segment, just beside the icon
-      const dotAngle = angle - 18;
-      const dp = pointOn(dotAngle, nodeRadius);
-      const dot = document.createElement('div');
-      dot.className = 'app-dot';
-      dot.style.left = dp.x + 'px';
-      dot.style.top = dp.y + 'px';
-      dot.style.background = app.color;
-      dot.style.boxShadow = `0 0 0 3px var(--panel), 0 0 7px 1px ${app.color}88`;
-      dot.style.opacity = '0';
-      dot.style.transition = 'opacity .3s ease';
-      wrap.appendChild(dot);
-      dotEls.push(dot);
-      setTimeout(()=>{ dot.style.opacity = app.status === 'empty' ? '0.35' : '1'; }, 90 + i*55);
-    });
-
-    mobileList.innerHTML = '';
-    mRows = [];
-    apps.forEach((app,i)=>{
-      const row = document.createElement('div');
-      row.className = 'm-row';
-      row.innerHTML = `
-        <div class="m-icon" style="background:${app.color}18;"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>
-        <div><h4>${app.name}</h4><p>${app.sub.slice(0,50)}${app.sub.length>50?'…':''}</p></div>`;
-      row.addEventListener('click', ()=>selectApp(i));
-      mobileList.appendChild(row);
-      mRows.push(row);
-    });
+  // thin metallic border between each pair of colors — a radial divider line
+  // right at the seam, on top of every segment, instead of a round cap
+  const dividerEls = [];
+  const dividerWidth = 3.5;
+  for (let i = 0; i < apps.length; i++) {
+    const boundaryAngle = i * step;
+    const inner = pointOn(boundaryAngle, nodeRadius - ringThickness / 2);
+    const outer = pointOn(boundaryAngle, nodeRadius + ringThickness / 2);
+    const divider = document.createElementNS(svgNS, 'line');
+    divider.setAttribute('x1', inner.x);
+    divider.setAttribute('y1', inner.y);
+    divider.setAttribute('x2', outer.x);
+    divider.setAttribute('y2', outer.y);
+    divider.setAttribute('stroke-width', dividerWidth);
+    divider.setAttribute('stroke-linecap', 'round');
+    divider.setAttribute('class', 'seg-divider');
+    divider.style.opacity = '0';
+    divider.style.transition = 'opacity .4s ease';
+    svg.appendChild(divider);
+    dividerEls.push(divider);
+    setTimeout(() => { divider.style.opacity = '1'; }, 60 + i * 55);
   }
+
+  apps.forEach((app, i) => {
+    const angle = i*step + step/2;
+    const rad = angle*Math.PI/180;
+    const dx = Math.sin(rad), dy = -Math.cos(rad);
+
+    const spoke = document.createElement('div');
+    spoke.className = 'spoke';
+    spoke.style.color = app.color;
+    spoke.style.left = center + 'px';
+    spoke.style.top = center + 'px';
+    spoke.style.transform = `rotate(${angle-90}deg)`;
+    wrap.appendChild(spoke);
+    spokeEls.push({el:spoke, len: nodeRadius - 20});
+
+    const node = document.createElement('div');
+    node.className = 'app-node' + (app.status === 'empty' ? ' placeholder' : '');
+    node.tabIndex = 0;
+    node.style.left = (center + dx*nodeRadius) + 'px';
+    node.style.top = (center + dy*nodeRadius) + 'px';
+    node.style.borderColor = app.color + 'aa';
+    node.style.color = app.color;
+    node.innerHTML = `<div class="app-node-inner"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>`;
+    node.addEventListener('click', () => selectApp(i));
+    node.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectApp(i);} });
+    wrap.appendChild(node);
+    nodeEls.push(node);
+    nodeInnerEls.push(node.querySelector('.app-node-inner'));
+    setTimeout(()=>node.classList.add('in'), 60 + i*55);
+
+    // small accent dot sitting inside the segment, just beside the icon
+    const dotAngle = angle - 18;
+    const dp = pointOn(dotAngle, nodeRadius);
+    const dot = document.createElement('div');
+    dot.className = 'app-dot';
+    dot.style.left = dp.x + 'px';
+    dot.style.top = dp.y + 'px';
+    dot.style.background = app.color;
+    dot.style.boxShadow = `0 0 0 3px var(--panel), 0 0 7px 1px ${app.color}88`;
+    dot.style.opacity = '0';
+    dot.style.transition = 'opacity .3s ease';
+    wrap.appendChild(dot);
+    dotEls.push(dot);
+    setTimeout(()=>{ dot.style.opacity = app.status === 'empty' ? '0.35' : '1'; }, 90 + i*55);
+  });
+
+  const mobileList = document.getElementById('mobileList');
+  const mRows = [];
+  apps.forEach((app,i)=>{
+    const row = document.createElement('div');
+    row.className = 'm-row';
+    row.innerHTML = `
+      <div class="m-icon" style="background:${app.color}18;"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>
+      <div><h4>${app.name}</h4><p>${app.sub.slice(0,50)}${app.sub.length>50?'…':''}</p></div>`;
+    row.addEventListener('click', ()=>selectApp(i));
+    mobileList.appendChild(row);
+    mRows.push(row);
+  });
 
   function hostname(url) { try { return new URL(url).hostname; } catch(e) { return ''; } }
-
-  function updateStatusStrip() {
-    const onlineCount = apps.filter(a => a.status !== 'empty').length;
-    document.getElementById('statusOnlineCount').textContent = onlineCount;
-  }
-
-  // Troca de guia (Pessoal / Profissional / Advocacia): reconstrói a roda,
-  // a lista mobile, os favoritos e o texto de saudação para o workspace escolhido.
-  function switchWorkspace(key) {
-    if (!workspaces[key] || key === currentWs) return;
-    currentWs = key;
-    apps = workspaces[key].apps;
-    selected = null;
-
-    document.querySelectorAll('.workspace-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.ws === key));
-    document.getElementById('greetTitle').textContent = workspaces[key].greeting.title;
-    document.getElementById('greetSub').textContent = workspaces[key].greeting.sub;
-    document.getElementById('searchInput').value = '';
-
-    buildWheel();
-    updateStatusStrip();
-    renderWheelCenter();
-    renderDetail();
-    renderFavorites();
-  }
-
-  document.querySelectorAll('.workspace-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchWorkspace(tab.dataset.ws));
-  });
 
   function renderWheelCenter() {
     const hole = document.getElementById('wheelHole');
@@ -592,7 +516,7 @@
       </div>`;
 
     if (!isEmpty) {
-      document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; renderDetail(); renderFavorites(); });
+      document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; saveFavorites(); renderDetail(); renderFavorites(); });
       document.getElementById('openBtn').addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
       document.getElementById('copyBtn').addEventListener('click', (e) => {
         navigator.clipboard.writeText(app.url).then(() => {
@@ -646,8 +570,6 @@
     });
   });
 
-  buildWheel();
-  updateStatusStrip();
   renderWheelCenter();
   renderDetail();
   renderFavorites();
@@ -694,6 +616,12 @@
     requestAnimationFrame(tickWave);
   }
   if (!reduceMotion) requestAnimationFrame(tickWave);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW falhou:', err));
+    });
+  }
 </script>
 
 </body>
