@@ -264,7 +264,7 @@
     <div class="topbar">
       <div class="greeting">
         <div class="greeting-wave">Olá, 👋</div>
-        <h1 id="greetTitle">Bem-vindo ao seu hub</h1>
+        <h1 id="greetTitle">Nexo Hub</h1>
         <p id="greetSub">Clique em um app no anel pra ver detalhes, favoritar ou abrir.</p>
       </div>
       <div class="topbar-right">
@@ -332,15 +332,22 @@
       ]
     },
     profissional: {
-      label: 'Profissional', // <- troque pelo nome que preferir, ex: "Klabin"
+      label: 'Profissional', // <- troque pelo nome que preferir.
       icon: 'work', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Seus links de trabalho', sub: 'Edite estes cards com nome, ícone e link de cada ferramenta que você usa no trabalho.' },
+      greeting: { title: 'Seus links de trabalho', sub: 'Vamos começar a trabalhar!' },
       apps: [
-        { name:"App 1", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#3B82F6", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 2", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#10B981", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 3", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#F59E0B", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 4", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#8B5CF6", status:"empty", last:"—", fav:false, url:"" },
-      ]
+        { name:"PI", sub:"PI Data Link", icon:"Ssid_chart", color:"#3B82F6", status:"online", last:"—", fav:false, url:"https://ortpivision.klabin.com.br/PIVision/#/Displays/34940/Joao-Carlos---Trend" },
+        { name:"Notas e Ocorrências", sub:"Local para criar notas e ocorrencias do turno, bem com lançar os apontamentos da OEE.", icon:"Note_Add", color:"#10B981", status:"online", last:"—", fav:false, url:"http://ortsrvprd0195:50000/XMII/Illuminator?xsrfid=D8aQrxEKy7sxmuzXB5hlTJAAdnD8CL134fU&service=Personalization&sniffer=Netscape%2C5%2C784%2C1046%2C" },
+        { name:"SRP Qualidade", sub:"Acessar o boletim de qualidade, no Microsoft EDGE.", icon:"Workspace_Premium", color:"#F59E0B", status:"online", last:"—", fav:false, url:"http://ortsrv021-vm:50000/XMII/CM/SRP_CELULOSE-UI/index.html" },
+        { name:"Qualidade", sub:"Qualidade e produção do dia", icon:"diamond", color:"#65A30D", status:"online", last:"—", fav:false, url:"https://gerenciadefacilities.com.br/restrito.php" },
+	{ name:"SEGOP", sub:"Segurança operacional, malhas em manual, forces, alarmes.", icon:"detector_alarm", color:"#E11D48", status:"online", last:"—", fav:false, url:"https://ortsegop.klabin.com.br/Reports/powerbi/Report%20Geral" },
+	{ name:"EPI", sub:"Solicitação de EPI's", icon:"apparel", color:"#155E75", status:"online", last:"—", fav:false, url:"https://epifacil.klabin.com.br/Login.aspx" },
+	{ name:"Portal Puma", sub:"Portal", icon:"docs", color:"#84CC16", status:"online", last:"—", fav:false, url:"https://apps.powerapps.com/play/e/default-a2fda012-a924-4452-b67d-be71576f6506/a/84327d08-d4d2-449f-975f-5daa5fe80dff?tenantId=a2fda012-a924-4452-b67d-be71576f6506&hidenavbar=true" },
+	{ name:"Klabin Dashboards", sub:"Dashboard", icon:"stacked_bar_chart", color:"#8E5CF9", status:"online", last:"—", fav:false, url:"https://ortpi.klabin.com.br/dashboardssecurityapi/Account/Login?ReturnUrl=%2Fdashboardssecurityapi%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3DIhmKlabinDashboards%26state%3DczBBOG1CZ0lGcXFwUGRuNkVaMTQwcXNXYjdNVm9ZSi1jYjhvelouTFJvMFhj%26redirect_uri%3Dhttps%253A%252F%252Fortpi.klabin.com.br%252Fdashboards%252Flogin-callback%26scope%3Dopenid%2520profile%2520email%2520ihm_klabin_dashboards_api%26code_challenge%3DDJo_UPmOiz95PrwTL4BfxACSAG6qO1W3LKWV_mpsing%26code_challenge_method%3DS256%26nonce%3DczBBOG1CZ0lGcXFwUGRuNkVaMTQwcXNXYjdNVm9ZSi1jYjhvelouTFJvMFhj" },
+	{ name:"Minha Klabin", sub:"Minha Klabin", icon:"factory", color:"#16A34A", status:"online", last:"—", fav:false, url:"minha.klabin.com.br/auth_redirect.do?sysparm_stack=no&sysparm_url=https%3A%2F%2Fabi4381.id.cyberark.cloud%2Frun%3Fappkey%3D7caabc2e-617c-49ea-bb0a-420dff01c647%26customerId%3DABI4381%26SAMLRequest%3DjVLLbtswEPwVgYfe9LQs2YzlQrFR1ECaGrHbQ28rchUTlkiVS7n131dWXCQ91Mh1d3ZmOMMFQdskHS97d9BP%252BLNHct7vttHEXzYF663mBkgR19AicSf4rvzywJMg4p01zgjTMK8kQuuU0SujqW%252FR7tCelMBvTw8FOzjXEQ%252FDVukDBMcGKqUDYdqgsqGGUwfPGEjDvPWgrjRcaF6PBnA6mcWBkoE4V2jBHgPRmF6GttcfoeuOeC5yAVCJBP0szoWfzhH8qorAT5NI1nUUiyzNP0Db3YmenBnsbWRR3m8uxMz7ZKzAMYGC1dAQMm%252BzLtjucVUnaRXhHOYTGctZnFd1lWazappOo0TG02wA0haI1AlfT4l63GhyoF3BkijJ%252FCj3J%252FE%252ByvlkxuN5kM2jH8zbXrO7V1oq%252FXw76OoFRPzzfr%252F1t193%252B5HgpCTaxwH9%252Foy%252Fo6Ux34GWLRdjy3z0bN8Wf9sO%252FG2bLW%252FoLsK37Fetjl%252F8btZb0yhx9sqmMb9WFsENb3C2x7GOFtz%252FDcRBPE6U9OsRyrEF1ZRSWiRi4fKq%252B%252B%252BvXv4B%26RelayState%3Dhttps%253A%252F%252Fminha.klabin.com.br%252Fminhaklabin" },
+	{ name:"Office 365", sub:"Aplicativos Microsoft", icon:"cloud_done", color:"#06B6D4", status:"online", last:"—", fav:false, url:"https://m365.cloud.microsoft/apps?auth=2&home=1&username=jcaferreira@klabin.com.br&login_hint=jcaferreira@klabin.com.br" },
+
+	      ]
     },
     advocacia: {
       label: 'Advocacia',
