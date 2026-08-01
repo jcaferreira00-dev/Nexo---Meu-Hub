@@ -135,7 +135,7 @@
   .wheel-hole .wh-icon .material-symbols-outlined { font-size:18px; }
   .wheel-hole h5 { font-family:'Space Grotesk',sans-serif; font-size:13.5px; font-weight:600; max-width:150px; line-height:1.25; }
   .wheel-hole span { font-size:11px; color:var(--text-dim); }
-  .hole-content { opacity:0; transform:scale(.5) translateY(6px); transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .22s ease; display:flex; flex-direction:column; align-items:center; }
+  .hole-content { opacity:0; transform:scale(.5) translateY(6px); transition: transform .5s cubic-bezier(.34,1.2,.64,1), opacity .32s ease; display:flex; flex-direction:column; align-items:center; }
   .hole-content.pop { opacity:1; transform:scale(1) translateY(0); }
 
   .app-node { position:absolute; width:70px; height:70px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); cursor:pointer; transform:translate(-50%,-50%) scale(0); transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, border-color .18s ease; border:2.5px solid var(--border-strong); z-index:2; }
@@ -191,6 +191,30 @@
   .fav-chip .material-symbols-outlined { font-size:17px; }
   .fav-empty { font-size:12.5px; color:var(--text-dim); padding:10px 2px; }
 
+  /* BLOCK VIEW — grade de cards maiores, usada em Favoritos/Recentes,
+     sem a roda e sem o painel de detalhes lateral. Agrupa por guia. */
+  .block-view { margin-bottom:34px; }
+  .block-section { margin-bottom:28px; }
+  .block-section:last-child { margin-bottom:0; }
+  .block-section-head { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+  .block-section-head .material-symbols-outlined { font-size:19px; color:var(--text-dim); }
+  .block-section-head h3 { font-family:'Space Grotesk',sans-serif; font-size:14.5px; font-weight:600; }
+  .block-section-head .count { font-size:11.5px; color:var(--text-dim); background:var(--panel-2); border:1px solid var(--border); padding:2px 9px; border-radius:20px; }
+  .block-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+  .block-card { display:flex; align-items:flex-start; gap:14px; background:var(--panel); border:1.5px solid var(--border-strong); border-radius:16px; padding:18px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; box-shadow:var(--shadow); }
+  .block-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+  .block-card .bc-icon { width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--border-strong); flex-shrink:0; }
+  .block-card .bc-icon .material-symbols-outlined { font-size:22px; }
+  .block-card .bc-body { flex:1; min-width:0; }
+  .block-card h4 { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; margin-bottom:4px; }
+  .block-card p { font-size:12px; color:var(--text-dim); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:11px; }
+  .block-card .bc-actions { display:flex; gap:6px; }
+  .block-card .bc-action { width:29px; height:29px; border-radius:9px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-strong); color:var(--text-dim); transition:background .12s ease, color .12s ease, border-color .12s ease; }
+  .block-card .bc-action .material-symbols-outlined { font-size:16px; }
+  .block-card .bc-action:hover { background:var(--panel-2); color:var(--text); }
+  .block-card .bc-action.fav.is-fav { color:#F43F5E; border-color:#F43F5E55; background:#F43F5E14; }
+  .block-empty { font-size:13px; color:var(--text-dim); padding:30px 10px; text-align:center; }
+
   .mobile-list { display:none; flex-direction:column; gap:10px; }
   .m-row { display:flex; align-items:center; gap:14px; background:var(--panel); border:1.5px solid var(--border-strong); border-radius:14px; padding:14px 16px; cursor:pointer; }
   .m-row .m-icon { width:40px; height:40px; border-radius:11px; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--border-strong); flex-shrink:0; }
@@ -217,9 +241,111 @@
     .topbar-right { width:100%; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+
+  /* ============== LOCK SCREEN ============== */
+  .lock-screen {
+    position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+    background: var(--bg); transition:opacity .35s ease, visibility .35s ease;
+  }
+  [data-theme="dark"] .lock-screen {
+    background: radial-gradient(ellipse 1200px 700px at 20% -10%, #1a1d2b 0%, transparent 55%),
+                radial-gradient(ellipse 900px 600px at 100% 10%, #171b26 0%, transparent 50%),
+                var(--bg);
+  }
+  .lock-screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+  .lock-card { width:100%; max-width:340px; padding:0 24px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .lock-mark { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#4C6FFF,#8B5CF6); border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:var(--shadow-lg); }
+  .lock-mark .material-symbols-outlined { font-size:26px; color:#fff; }
+  .lock-title { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; margin-bottom:4px; }
+  .lock-sub { font-size:13px; color:var(--text-dim); margin-bottom:26px; }
+  .lock-dots { display:flex; gap:14px; margin-bottom:30px; }
+  .lock-dot { width:14px; height:14px; border-radius:50%; border:1.5px solid var(--border-strong); background:transparent; transition:background .15s ease, border-color .15s ease, transform .15s ease; }
+  .lock-dot.filled { background:var(--accent); border-color:var(--accent); transform:scale(1.1); }
+  .lock-dots.shake { animation:lockShake .38s ease; }
+  @keyframes lockShake { 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
+  .lock-error { font-size:12.5px; color:#F43F5E; min-height:18px; margin-bottom:10px; }
+  .lock-pad { display:grid; grid-template-columns:repeat(3,64px); gap:14px; }
+  .lock-key { width:64px; height:64px; border-radius:50%; border:1.5px solid var(--border-strong); background:var(--panel); color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .12s ease, transform .1s ease; box-shadow:var(--shadow); }
+  .lock-key:active { transform:scale(.92); background:var(--panel-2); }
+  .lock-key.lock-key-ghost { background:transparent; border-color:transparent; box-shadow:none; cursor:default; }
+  .lock-key .material-symbols-outlined { font-size:22px; }
+  .lock-foot { margin-top:22px; font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .lock-foot:hover { color:var(--text); }
+
+  /* ============== SETTINGS / LOGOUT MODAL ============== */
+  .modal-overlay { position:fixed; inset:0; z-index:200; background:rgba(10,11,16,0.45); display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease; padding:20px; }
+  .modal-overlay.show { opacity:1; visibility:visible; }
+  .modal-card { width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:var(--shadow-lg); transform:translateY(8px); transition:transform .2s ease; }
+  .modal-overlay.show .modal-card { transform:translateY(0); }
+  .modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .modal-head h3 { font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:600; }
+  .modal-close { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-dim); border:1px solid transparent; }
+  .modal-close:hover { background:var(--panel-2); border-color:var(--border); color:var(--text); }
+  .modal-section { margin-bottom:16px; }
+  .modal-label { font-size:12px; color:var(--text-dim); margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+  .modal-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border:1.5px solid var(--border-strong); border-radius:12px; margin-bottom:8px; font-size:13.5px; cursor:pointer; transition:background .12s ease, border-color .12s ease; }
+  .modal-row:hover { background:var(--panel-2); }
+  .modal-row .material-symbols-outlined { font-size:19px; color:var(--text-dim); }
+  .modal-row.danger { color:#F43F5E; border-color:#F43F5E55; }
+  .modal-row.danger .material-symbols-outlined { color:#F43F5E; }
+  .modal-pin-input { width:100%; padding:12px 14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--panel-2); color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:16px; letter-spacing:6px; text-align:center; margin-bottom:10px; outline:none; }
+  .modal-pin-input:focus { border-color:var(--accent); }
+  .modal-msg { font-size:12px; min-height:16px; margin-bottom:8px; text-align:center; }
+  .modal-msg.err { color:#F43F5E; }
+  .modal-msg.ok { color:#10B981; }
+  .modal-btn { width:100%; padding:11px; border-radius:12px; background:var(--text); color:var(--bg); border:none; font-family:inherit; font-weight:600; font-size:13.5px; cursor:pointer; }
+  .modal-btn:hover { opacity:.85; }
+
+  .nav-item.active .material-symbols-outlined { font-variation-settings:'FILL' 1; }
 </style>
 </head>
 <body data-theme="light">
+
+<!-- ============== LOCK SCREEN ============== -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-mark"><span class="material-symbols-outlined">lock</span></div>
+    <div class="lock-title" id="lockTitle">Digite seu PIN</div>
+    <div class="lock-sub" id="lockSub">Acesso local ao seu hub — nada é enviado pra nenhum servidor.</div>
+    <div class="lock-error" id="lockError">&nbsp;</div>
+    <div class="lock-dots" id="lockDots">
+      <div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div>
+    </div>
+    <div class="lock-pad" id="lockPad">
+      <button class="lock-key" data-k="1">1</button><button class="lock-key" data-k="2">2</button><button class="lock-key" data-k="3">3</button>
+      <button class="lock-key" data-k="4">4</button><button class="lock-key" data-k="5">5</button><button class="lock-key" data-k="6">6</button>
+      <button class="lock-key" data-k="7">7</button><button class="lock-key" data-k="8">8</button><button class="lock-key" data-k="9">9</button>
+      <button class="lock-key lock-key-ghost"></button><button class="lock-key" data-k="0">0</button>
+      <button class="lock-key" data-k="back"><span class="material-symbols-outlined">backspace</span></button>
+    </div>
+    <div class="lock-foot" id="lockReset">Esqueceu o PIN? Redefinir</div>
+  </div>
+</div>
+
+<!-- ============== SETTINGS MODAL ============== -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3>Configurações</h3><div class="modal-close" id="settingsClose"><span class="material-symbols-outlined">close</span></div></div>
+    <div class="modal-section" id="settingsHome">
+      <div class="modal-label">Segurança</div>
+      <div class="modal-row" id="rowChangePin"><span><span class="material-symbols-outlined">password</span> Alterar PIN</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <div class="modal-label" style="margin-top:14px;">Aparência</div>
+      <div class="modal-row" id="rowTheme"><span><span class="material-symbols-outlined" id="rowThemeIcon">dark_mode</span> Alternar tema</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <div class="modal-label" style="margin-top:14px;">Sessão</div>
+      <div class="modal-row danger" id="rowLogout"><span><span class="material-symbols-outlined">logout</span> Sair e bloquear</span><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
+    <div class="modal-section" id="settingsPinFlow" style="display:none;">
+      <div class="modal-label">PIN atual</div>
+      <input class="modal-pin-input" id="pinCurrent" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+      <div class="modal-label">Novo PIN (4 dígitos)</div>
+      <input class="modal-pin-input" id="pinNew" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+      <div class="modal-label">Confirmar novo PIN</div>
+      <input class="modal-pin-input" id="pinConfirm" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+      <div class="modal-msg" id="pinMsg">&nbsp;</div>
+      <button class="modal-btn" id="pinSaveBtn">Salvar novo PIN</button>
+    </div>
+  </div>
+</div>
 <div class="ambient"></div>
 
 <div class="shell">
@@ -248,15 +374,14 @@
     </div>
 
     <nav class="nav">
-      <div class="nav-item active"><span class="material-symbols-outlined">grid_view</span>Início</div>
-      <div class="nav-item"><span class="material-symbols-outlined">star</span>Favoritos</div>
-      <div class="nav-item"><span class="material-symbols-outlined">history</span>Recentes</div>
-      <div class="nav-item"><span class="material-symbols-outlined">payments</span>Finanças</div>
+      <div class="nav-item active" id="navHome"><span class="material-symbols-outlined">grid_view</span>Início</div>
+      <div class="nav-item" id="navFavorites"><span class="material-symbols-outlined">star</span>Favoritos</div>
+      <div class="nav-item" id="navRecent"><span class="material-symbols-outlined">history</span>Recentes</div>
     </nav>
     <div class="nav-spacer"></div>
     <div class="nav-bottom">
-      <div class="nav-item"><span class="material-symbols-outlined">settings</span>Configurações</div>
-      <div class="nav-item"><span class="material-symbols-outlined">logout</span>Sair</div>
+      <div class="nav-item" id="navSettings"><span class="material-symbols-outlined">settings</span>Configurações</div>
+      <div class="nav-item" id="navLogout"><span class="material-symbols-outlined">logout</span>Sair</div>
     </div>
   </aside>
 
@@ -281,7 +406,7 @@
       <div><b id="favCountTop">0</b> favoritos</div>
     </div>
 
-    <div class="hub-row">
+    <div class="hub-row" id="hubRow">
       <div class="wheel-col">
         <div class="wheel-wrap" id="wheelWrap">
           <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 440 440"></svg>
@@ -292,11 +417,15 @@
       <div class="mobile-list" id="mobileList"></div>
     </div>
 
-    <div class="section-head">
-      <h3>Favoritos</h3>
-      <span id="favCount" style="font-size:12.5px;color:var(--text-dim);"></span>
+    <div class="block-view" id="blockView" style="display:none;"></div>
+
+    <div id="legacyFavSection">
+      <div class="section-head">
+        <h3>Favoritos</h3>
+        <span id="favCount" style="font-size:12.5px;color:var(--text-dim);"></span>
+      </div>
+      <div class="fav-row" id="favRow"></div>
     </div>
-    <div class="fav-row" id="favRow"></div>
   </main>
 </div>
 
@@ -362,9 +491,19 @@
     }
   };
 
-  let currentWs = 'pessoal';
+  // Guia persistida: lê a última guia usada do localStorage, assim um F5 não
+  // volta pra "Pessoal" — fica na guia em que o usuário estava.
+  const WS_KEY = 'nexo-hub-current-ws';
+  let currentWs = localStorage.getItem(WS_KEY);
+  if (!currentWs || !workspaces[currentWs]) currentWs = 'pessoal';
   let apps = workspaces[currentWs].apps;
   let selected = null;
+  let viewMode = 'all'; // 'all' | 'favorites' | 'recent'
+
+  // Reflete a guia salva na UI (tabs, saudação) antes de montar a roda.
+  document.querySelectorAll('.workspace-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.ws === currentWs));
+  document.getElementById('greetTitle').textContent = workspaces[currentWs].greeting.title;
+  document.getElementById('greetSub').textContent = workspaces[currentWs].greeting.sub;
 
   // favorites persist locally on the device — cada guia tem sua própria chave,
   // assim favoritos de Pessoal não se misturam com os de Profissional/Advocacia
@@ -380,7 +519,46 @@
       localStorage.setItem(favKey(currentWs), JSON.stringify(apps.filter(a => a.fav).map(a => a.name)));
     } catch (e) { /* storage unavailable — fails silently, app still works */ }
   }
-  loadFavorites();
+  // Carrega os favoritos de TODAS as guias (não só a atual), pra a visão
+  // agregada de Favoritos poder mostrar Pessoal/Profissional/Advocacia
+  // mesmo sem o usuário ter clicado em cada guia nesta sessão.
+  function preloadAllFavorites() {
+    Object.keys(workspaces).forEach(ws => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(favKey(ws)) || '[]');
+        workspaces[ws].apps.forEach(app => { if (saved.includes(app.name)) app.fav = true; });
+      } catch (e) { /* ignore corrupted storage */ }
+    });
+  }
+  preloadAllFavorites();
+
+  // "Recentes" — guarda, por guia, os últimos apps abertos/visualizados,
+  // pra alimentar o filtro "Recentes" da barra lateral e o "Último acesso".
+  function recentKey(ws) { return 'nexo-hub-recent-' + ws; }
+  function loadRecent(ws) {
+    try { return JSON.parse(localStorage.getItem(recentKey(ws || currentWs)) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function touchRecent(appName) {
+    try {
+      const map = loadRecent();
+      map[appName] = Date.now();
+      localStorage.setItem(recentKey(currentWs), JSON.stringify(map));
+    } catch (e) { /* storage indisponível — segue sem quebrar o app */ }
+  }
+  function isRecent(appName) { return Object.prototype.hasOwnProperty.call(loadRecent(), appName); }
+  function timeAgo(ts) {
+    const diff = Math.max(0, Date.now() - ts);
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return 'agora mesmo';
+    if (min < 60) return `há ${min} min`;
+    const hrs = Math.floor(min / 60);
+    if (hrs < 24) return hrs === 1 ? 'há 1 hora' : `há ${hrs} horas`;
+    const days = Math.floor(hrs / 24);
+    if (days === 1) return 'ontem';
+    if (days < 7) return `há ${days} dias`;
+    return `há ${Math.floor(days / 7)} sem.`;
+  }
 
   const wrap = document.getElementById('wheelWrap');
   const svg = document.getElementById('wheelSvg');
@@ -542,18 +720,29 @@
     currentWs = key;
     apps = workspaces[key].apps;
     selected = null;
+    localStorage.setItem(WS_KEY, key);
     loadFavorites();
 
     document.querySelectorAll('.workspace-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.ws === key));
     document.getElementById('greetTitle').textContent = workspaces[key].greeting.title;
     document.getElementById('greetSub').textContent = workspaces[key].greeting.sub;
     document.getElementById('searchInput').value = '';
+    viewMode = 'all';
+    document.getElementById('navHome').classList.add('active');
+    document.getElementById('navFavorites').classList.remove('active');
+    document.getElementById('navRecent').classList.remove('active');
+    document.getElementById('hubRow').style.display = '';
+    document.getElementById('legacyFavSection').style.display = '';
+    document.getElementById('blockView').style.display = 'none';
 
     buildWheel();
+    updateWavePeriod();
     updateStatusStrip();
     renderWheelCenter();
     renderDetail();
     renderFavorites();
+    applyFilters();
+    waveCenterIndex = -1;
   }
 
   document.querySelectorAll('.workspace-tab').forEach(tab => {
@@ -605,7 +794,7 @@
       <div class="detail-desc">${app.sub}</div>
       <div class="detail-meta">
         <div class="meta-item">Status<b>${isEmpty ? '—' : 'Online'}</b></div>
-        <div class="meta-item">Último acesso<b>${app.last}</b></div>
+        <div class="meta-item">Último acesso<b>${(() => { const m = loadRecent(); return m[app.name] ? timeAgo(m[app.name]) : app.last; })()}</b></div>
       </div>
       <div class="detail-actions">
         <button class="btn btn-primary ${isEmpty ? 'is-disabled' : ''}" id="openBtn">
@@ -655,24 +844,139 @@
 
   function selectApp(i) {
     selected = i;
+    if (apps[i] && apps[i].status !== 'empty') touchRecent(apps[i].name);
     nodeEls.forEach((n, idx) => n.classList.toggle('active', idx === i));
     spokeEls.forEach((s, idx) => {
       if (idx === i) { s.el.style.width = s.len + 'px'; s.el.classList.add('show'); }
       else { s.el.style.width = '0px'; s.el.classList.remove('show'); }
     });
-    renderWheelCenter();
+    if (typeof reduceMotion !== 'undefined' && reduceMotion) renderWheelCenter();
     renderDetail();
   }
 
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
+  // Filtro unificado: combina a busca por texto com o modo de visualização
+  // escolhido na barra lateral (Início = tudo, Favoritos, Recentes).
+  function applyFilters() {
+    if (viewMode !== 'all') { renderBlockView(); return; }
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
     apps.forEach((app, i) => {
       const match = !q || app.name.toLowerCase().includes(q) || app.sub.toLowerCase().includes(q);
       nodeEls[i].classList.toggle('dimmed', !match);
       segEls[i].classList.toggle('dimmed-seg', !match);
-      mRows[i].classList.toggle('hidden-row', !match);
+      if (mRows[i]) mRows[i].classList.toggle('hidden-row', !match);
     });
-  });
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode;
+    document.getElementById('navHome').classList.toggle('active', mode === 'all');
+    document.getElementById('navFavorites').classList.toggle('active', mode === 'favorites');
+    document.getElementById('navRecent').classList.toggle('active', mode === 'recent');
+
+    const showWheel = mode === 'all';
+    document.getElementById('hubRow').style.display = showWheel ? '' : 'none';
+    document.getElementById('legacyFavSection').style.display = showWheel ? '' : 'none';
+    document.getElementById('blockView').style.display = showWheel ? 'none' : '';
+
+    applyFilters();
+  }
+
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('navHome').addEventListener('click', () => setViewMode('all'));
+  document.getElementById('navFavorites').addEventListener('click', () => setViewMode('favorites'));
+  document.getElementById('navRecent').addEventListener('click', () => setViewMode('recent'));
+
+  // ============== VISÃO EM BLOCOS (Favoritos / Recentes) ==============
+  // Sem a roda e sem o painel de detalhes lateral — blocos maiores,
+  // agrupados por guia (Pessoal / Profissional / Advocacia), pra dar uma
+  // visão rápida dos favoritos/recentes das 3 guias ao mesmo tempo.
+  function blockCardHtml(ws, app) {
+    const isEmpty = app.status === 'empty';
+    return `<div class="block-card" data-url="${isEmpty ? '' : app.url}">
+      <div class="bc-icon" style="background:${app.color}18;border-color:${app.color}88;">
+        <span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span>
+      </div>
+      <div class="bc-body">
+        <h4>${app.name}</h4>
+        <p>${app.sub}</p>
+        <div class="bc-actions">
+          <div class="bc-action fav ${app.fav ? 'is-fav' : ''}" data-ws="${ws}" data-name="${app.name}" title="Favoritar">
+            <span class="material-symbols-outlined">${app.fav ? 'favorite' : 'favorite_border'}</span>
+          </div>
+          ${!isEmpty ? `<div class="bc-action open" title="Abrir"><span class="material-symbols-outlined">open_in_new</span></div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderBlockView() {
+    const container = document.getElementById('blockView');
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    let html = '';
+    let total = 0;
+
+    Object.keys(workspaces).forEach(ws => {
+      const wsData = workspaces[ws];
+      let list;
+      if (viewMode === 'favorites') {
+        list = wsData.apps.filter(a => a.fav);
+      } else {
+        const map = loadRecent(ws);
+        list = wsData.apps.filter(a => Object.prototype.hasOwnProperty.call(map, a.name))
+                           .sort((a, b) => map[b.name] - map[a.name]);
+      }
+      if (q) list = list.filter(a => a.name.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q));
+      if (!list.length) return;
+      total += list.length;
+      html += `<div class="block-section">
+        <div class="block-section-head">
+          <span class="material-symbols-outlined">${wsData.icon}</span>
+          <h3>${wsData.label}</h3>
+          <span class="count">${list.length}</span>
+        </div>
+        <div class="block-grid">${list.map(app => blockCardHtml(ws, app)).join('')}</div>
+      </div>`;
+    });
+
+    if (!total) {
+      html = `<div class="block-empty">${
+        viewMode === 'favorites'
+          ? 'Nenhum favorito ainda — clique no ⭐ dentro de um card ou dos detalhes de um app pra fixar ele aqui.'
+          : 'Nenhum acesso recente ainda — abra ou selecione um app pra ele aparecer aqui.'
+      }</div>`;
+    }
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.block-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.bc-action')) return;
+        const url = card.dataset.url;
+        if (url) window.open(url, '_blank', 'noopener');
+      });
+    });
+    container.querySelectorAll('.bc-action.fav').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavBlock(btn.dataset.ws, btn.dataset.name);
+      });
+    });
+  }
+
+  function toggleFavBlock(ws, name) {
+    const app = workspaces[ws].apps.find(a => a.name === name);
+    if (!app) return;
+    app.fav = !app.fav;
+    try {
+      localStorage.setItem(favKey(ws), JSON.stringify(workspaces[ws].apps.filter(a => a.fav).map(a => a.name)));
+    } catch (e) { /* storage indisponível — segue sem quebrar o app */ }
+    if (ws === currentWs) {
+      renderFavorites();
+      if (selected !== null && apps[selected] === app) renderDetail();
+    }
+    renderBlockView();
+  }
+
 
   buildWheel();
   updateStatusStrip();
@@ -687,6 +991,8 @@
     body.setAttribute('data-theme', mode);
     optLight.classList.toggle('selected', mode==='light');
     optDark.classList.toggle('selected', mode==='dark');
+    const rowIcon = document.getElementById('rowThemeIcon');
+    if (rowIcon) rowIcon.textContent = mode === 'light' ? 'dark_mode' : 'light_mode';
   }
   optLight.addEventListener('click', () => setTheme('light'));
   optDark.addEventListener('click', () => setTheme('dark'));
@@ -699,10 +1005,33 @@
   // so clicking an icon never gets interrupted or cut short by the ripple.
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wave = { period: 8000, widthDeg: 110, nodeLift: 0.12, nodeRise: 4, segScale: 0.028, segGlow: 0.14, dotScale: 0.6 };
+  // tempo médio que cada app fica em destaque no centro — quanto mais apps
+  // na guia, maior o período total, pra troca continuar suave e não ficar
+  // "correndo" pelo anel.
+  const WAVE_DWELL_MS = 2600;
+  function updateWavePeriod() { wave.period = Math.max(14000, apps.length * WAVE_DWELL_MS); }
+  updateWavePeriod();
 
   function angDiff(a, b) { return ((a - b + 540) % 360) - 180; }
 
+  // Mostra no centro da roda o ícone + nome do app que a onda está
+  // atravessando no momento — sincronizado com a animação, independente
+  // de qual app está selecionado por clique. Vale em todas as guias.
+  let waveCenterIndex = -1;
+  function renderWaveCenter(idx) {
+    const app = apps[idx];
+    if (!app) return;
+    const hole = document.getElementById('wheelHole');
+    hole.innerHTML = `<div class="hole-content">
+      <div class="wh-icon" style="background:${app.color}18;border-color:${app.color}88;"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>
+      <h5>${app.name}</h5><span>${app.status==='online'?'online':'reservado'}</span>
+    </div>`;
+    const content = hole.querySelector('.hole-content');
+    requestAnimationFrame(() => requestAnimationFrame(() => content.classList.add('pop')));
+  }
+
   function tickWave(now) {
+    let peakInfluence = -1, peakIdx = -1;
     apps.forEach((app, i) => {
       const nodeAngle = i * step + step / 2;
       const waveAngle = (now / wave.period * 360) % 360;
@@ -718,10 +1047,161 @@
       if (seg) { seg.style.transform = `scale(${1 + influence * wave.segScale})`; seg.style.filter = `brightness(${1 + influence * wave.segGlow})`; }
       const dot = dotEls[i];
       if (dot) dot.style.transform = `translate(-50%,-50%) scale(${1 + influence * wave.dotScale})`;
+      if (influence > peakInfluence) { peakInfluence = influence; peakIdx = i; }
     });
+    if (peakIdx !== -1 && peakIdx !== waveCenterIndex && apps[peakIdx]) {
+      waveCenterIndex = peakIdx;
+      renderWaveCenter(peakIdx);
+    }
     requestAnimationFrame(tickWave);
   }
   if (!reduceMotion) requestAnimationFrame(tickWave);
+
+  // ============== CONFIGURAÇÕES (modal) ==============
+  const settingsModal = document.getElementById('settingsModal');
+  const settingsHome = document.getElementById('settingsHome');
+  const settingsPinFlow = document.getElementById('settingsPinFlow');
+  function openSettings() {
+    settingsHome.style.display = '';
+    settingsPinFlow.style.display = 'none';
+    document.getElementById('pinCurrent').value = '';
+    document.getElementById('pinNew').value = '';
+    document.getElementById('pinConfirm').value = '';
+    document.getElementById('pinMsg').textContent = '\u00a0';
+    document.getElementById('pinMsg').className = 'modal-msg';
+    settingsModal.classList.add('show');
+  }
+  function closeSettings() { settingsModal.classList.remove('show'); }
+  document.getElementById('navSettings').addEventListener('click', openSettings);
+  document.getElementById('settingsClose').addEventListener('click', closeSettings);
+  settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettings(); });
+
+  document.getElementById('rowTheme').addEventListener('click', () => {
+    setTheme(body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+
+  document.getElementById('rowChangePin').addEventListener('click', () => {
+    settingsHome.style.display = 'none';
+    settingsPinFlow.style.display = '';
+  });
+
+  document.getElementById('rowLogout').addEventListener('click', () => {
+    closeSettings();
+    logout();
+  });
+
+  document.getElementById('navLogout').addEventListener('click', logout);
+
+  function logout() {
+    sessionStorage.removeItem('nexo-hub-unlocked');
+    location.reload();
+  }
+
+  // ============== PIN — bloqueio local, sem sincronização/servidor ==============
+  const PIN_HASH_KEY = 'nexo-hub-pin-hash';
+  async function hashPin(pin) {
+    const enc = new TextEncoder().encode('nexo-hub::' + pin);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  document.getElementById('pinSaveBtn').addEventListener('click', async () => {
+    const cur = document.getElementById('pinCurrent').value.trim();
+    const nw = document.getElementById('pinNew').value.trim();
+    const cf = document.getElementById('pinConfirm').value.trim();
+    const msg = document.getElementById('pinMsg');
+    const storedHash = localStorage.getItem(PIN_HASH_KEY);
+    if (storedHash && (await hashPin(cur)) !== storedHash) {
+      msg.textContent = 'PIN atual incorreto.'; msg.className = 'modal-msg err'; return;
+    }
+    if (!/^\d{4}$/.test(nw)) {
+      msg.textContent = 'O novo PIN precisa ter 4 dígitos.'; msg.className = 'modal-msg err'; return;
+    }
+    if (nw !== cf) {
+      msg.textContent = 'A confirmação não confere.'; msg.className = 'modal-msg err'; return;
+    }
+    localStorage.setItem(PIN_HASH_KEY, await hashPin(nw));
+    msg.textContent = 'PIN atualizado com sucesso!'; msg.className = 'modal-msg ok';
+    setTimeout(closeSettings, 900);
+  });
+
+  // ---- Tela de bloqueio (teclado numérico) ----
+  const lockScreen = document.getElementById('lockScreen');
+  const lockDots = document.getElementById('lockDots');
+  const lockTitle = document.getElementById('lockTitle');
+  const lockSub = document.getElementById('lockSub');
+  const lockError = document.getElementById('lockError');
+  const lockReset = document.getElementById('lockReset');
+  let lockBuffer = '';
+  let lockStage = localStorage.getItem(PIN_HASH_KEY) ? 'login' : 'setup-1';
+  let firstPin = '';
+
+  function refreshLockCopy() {
+    if (lockStage === 'setup-1') { lockTitle.textContent = 'Crie um PIN'; lockSub.textContent = 'Escolha 4 dígitos pra proteger seu hub neste dispositivo.'; }
+    else if (lockStage === 'setup-2') { lockTitle.textContent = 'Confirme o PIN'; lockSub.textContent = 'Digite os mesmos 4 dígitos de novo.'; }
+    else { lockTitle.textContent = 'Digite seu PIN'; lockSub.textContent = 'Acesso local ao seu hub — nada é enviado pra nenhum servidor.'; }
+    lockReset.style.display = lockStage === 'login' ? '' : 'none';
+  }
+  function renderDots() {
+    lockDots.querySelectorAll('.lock-dot').forEach((d, i) => d.classList.toggle('filled', i < lockBuffer.length));
+  }
+  function lockErrorFlash(text) {
+    lockError.textContent = text;
+    lockDots.classList.remove('shake'); void lockDots.offsetWidth; lockDots.classList.add('shake');
+    lockBuffer = ''; renderDots();
+    setTimeout(() => { lockError.textContent = '\u00a0'; }, 1600);
+  }
+  async function submitBuffer() {
+    if (lockStage === 'setup-1') {
+      firstPin = lockBuffer; lockBuffer = ''; lockStage = 'setup-2'; refreshLockCopy(); renderDots(); return;
+    }
+    if (lockStage === 'setup-2') {
+      if (lockBuffer !== firstPin) {
+        lockStage = 'setup-1'; firstPin = ''; refreshLockCopy();
+        lockErrorFlash('Os PINs não coincidem — tente de novo.');
+        return;
+      }
+      localStorage.setItem(PIN_HASH_KEY, await hashPin(lockBuffer));
+      unlock();
+      return;
+    }
+    // login
+    const ok = (await hashPin(lockBuffer)) === localStorage.getItem(PIN_HASH_KEY);
+    if (ok) { unlock(); }
+    else { lockErrorFlash('PIN incorreto — tente de novo.'); }
+  }
+  function unlock() {
+    sessionStorage.setItem('nexo-hub-unlocked', '1');
+    lockScreen.classList.add('hidden');
+    lockBuffer = ''; renderDots();
+  }
+  document.getElementById('lockPad').addEventListener('click', (e) => {
+    const btn = e.target.closest('.lock-key');
+    if (!btn || btn.classList.contains('lock-key-ghost')) return;
+    const k = btn.dataset.k;
+    if (k === 'back') { lockBuffer = lockBuffer.slice(0, -1); renderDots(); return; }
+    if (lockBuffer.length >= 4) return;
+    lockBuffer += k;
+    renderDots();
+    if (lockBuffer.length === 4) submitBuffer();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (lockScreen.classList.contains('hidden')) return;
+    if (/^[0-9]$/.test(e.key) && lockBuffer.length < 4) { lockBuffer += e.key; renderDots(); if (lockBuffer.length === 4) submitBuffer(); }
+    else if (e.key === 'Backspace') { lockBuffer = lockBuffer.slice(0, -1); renderDots(); }
+  });
+  lockReset.addEventListener('click', () => {
+    if (!confirm('Isso vai apagar o PIN salvo neste dispositivo e pedir pra você criar um novo. Continuar?')) return;
+    localStorage.removeItem(PIN_HASH_KEY);
+    lockStage = 'setup-1'; firstPin = ''; lockBuffer = '';
+    refreshLockCopy(); renderDots();
+  });
+
+  refreshLockCopy();
+  renderDots();
+  if (sessionStorage.getItem('nexo-hub-unlocked') === '1') {
+    lockScreen.classList.add('hidden');
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
