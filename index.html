@@ -242,40 +242,44 @@
   }
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
 
-  /* ============== LOCK SCREEN ============== */
-  .lock-screen {
-    position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
-    background: var(--bg); transition:opacity .35s ease, visibility .35s ease;
+  /* ============== APP FORM MODAL (adicionar/editar app) ============== */
+  .form-group { margin-bottom:13px; }
+  .form-label { font-size:12px; color:var(--text-dim); margin-bottom:6px; font-weight:600; display:block; }
+  .form-input, .form-textarea {
+    width:100%; padding:11px 13px; border:1.5px solid var(--border-strong); border-radius:11px;
+    background:var(--panel-2); color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
+    transition:border-color .12s ease;
   }
-  [data-theme="dark"] .lock-screen {
-    background: radial-gradient(ellipse 1200px 700px at 20% -10%, #1a1d2b 0%, transparent 55%),
-                radial-gradient(ellipse 900px 600px at 100% 10%, #171b26 0%, transparent 50%),
-                var(--bg);
-  }
-  .lock-screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-  .lock-card { width:100%; max-width:340px; padding:0 24px; display:flex; flex-direction:column; align-items:center; text-align:center; }
-  .lock-mark { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#4C6FFF,#8B5CF6); border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:var(--shadow-lg); }
-  .lock-mark .material-symbols-outlined { font-size:26px; color:#fff; }
-  .lock-title { font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:19px; margin-bottom:4px; }
-  .lock-sub { font-size:13px; color:var(--text-dim); margin-bottom:26px; }
-  .lock-dots { display:flex; gap:14px; margin-bottom:30px; }
-  .lock-dot { width:14px; height:14px; border-radius:50%; border:1.5px solid var(--border-strong); background:transparent; transition:background .15s ease, border-color .15s ease, transform .15s ease; }
-  .lock-dot.filled { background:var(--accent); border-color:var(--accent); transform:scale(1.1); }
-  .lock-dots.shake { animation:lockShake .38s ease; }
-  @keyframes lockShake { 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
-  .lock-error { font-size:12.5px; color:#F43F5E; min-height:18px; margin-bottom:10px; }
-  .lock-pad { display:grid; grid-template-columns:repeat(3,64px); gap:14px; }
-  .lock-key { width:64px; height:64px; border-radius:50%; border:1.5px solid var(--border-strong); background:var(--panel); color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .12s ease, transform .1s ease; box-shadow:var(--shadow); }
-  .lock-key:active { transform:scale(.92); background:var(--panel-2); }
-  .lock-key.lock-key-ghost { background:transparent; border-color:transparent; box-shadow:none; cursor:default; }
-  .lock-key .material-symbols-outlined { font-size:22px; }
-  .lock-foot { margin-top:22px; font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
-  .lock-foot:hover { color:var(--text); }
+  .form-input:focus, .form-textarea:focus { border-color:var(--accent); }
+  .form-textarea { resize:vertical; min-height:56px; line-height:1.5; }
+  .form-icon-row { display:flex; align-items:center; gap:10px; }
+  .form-icon-row .form-input { flex:1; }
+  .form-icon-preview { width:44px; height:44px; border-radius:12px; border:1.5px solid var(--border-strong); background:var(--panel); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .form-icon-preview .material-symbols-outlined { font-size:22px; color:var(--text-dim); }
+  .form-hint { font-size:11px; color:var(--text-dim); margin-top:5px; }
+  .form-hint a { color:var(--accent); text-decoration:none; }
+  .form-hint a:hover { text-decoration:underline; }
+  .form-actions { display:flex; gap:8px; margin-top:6px; }
+  .form-actions .modal-btn.ghost { background:transparent; color:var(--text); border:1.5px solid var(--border-strong); }
+  .discard-bar { display:none; align-items:center; justify-content:space-between; gap:10px; background:var(--panel-2); border:1px solid var(--border-strong); border-radius:12px; padding:12px 14px; margin-top:14px; }
+  .discard-bar.show { display:flex; }
+  .discard-bar span { font-size:12.5px; }
+  .discard-bar-actions { display:flex; gap:6px; }
+  .discard-bar-actions button { padding:7px 12px; border-radius:9px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); }
+  .discard-bar-actions button.danger { background:#F43F5E; border-color:#F43F5E; color:#fff; }
+
+  /* ============== AUTH (login/signup dentro de Configurações) ============== */
+  .auth-account { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1.5px solid var(--border-strong); border-radius:12px; margin-bottom:8px; }
+  .auth-account .material-symbols-outlined { font-size:22px; color:var(--accent); }
+  .auth-account .auth-email { font-size:13px; font-weight:600; word-break:break-all; }
+  .auth-account .auth-status { font-size:11.5px; color:var(--text-dim); }
+  .auth-switch { text-align:center; font-size:12px; color:var(--text-dim); margin-top:4px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .auth-switch:hover { color:var(--text); }
 
   /* ============== SETTINGS / LOGOUT MODAL ============== */
   .modal-overlay { position:fixed; inset:0; z-index:200; background:rgba(10,11,16,0.45); display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity .2s ease, visibility .2s ease; padding:20px; }
   .modal-overlay.show { opacity:1; visibility:visible; }
-  .modal-card { width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:var(--shadow-lg); transform:translateY(8px); transition:transform .2s ease; }
+  .modal-card { width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:var(--shadow-lg); transform:translateY(8px); transition:transform .2s ease; max-height:88vh; overflow-y:auto; }
   .modal-overlay.show .modal-card { transform:translateY(0); }
   .modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
   .modal-head h3 { font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:600; }
@@ -301,48 +305,92 @@
 </head>
 <body data-theme="light">
 
-<!-- ============== LOCK SCREEN ============== -->
-<div class="lock-screen" id="lockScreen">
-  <div class="lock-card">
-    <div class="lock-mark"><span class="material-symbols-outlined">lock</span></div>
-    <div class="lock-title" id="lockTitle">Digite seu PIN</div>
-    <div class="lock-sub" id="lockSub">Acesso local ao seu hub — nada é enviado pra nenhum servidor.</div>
-    <div class="lock-error" id="lockError">&nbsp;</div>
-    <div class="lock-dots" id="lockDots">
-      <div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div><div class="lock-dot"></div>
-    </div>
-    <div class="lock-pad" id="lockPad">
-      <button class="lock-key" data-k="1">1</button><button class="lock-key" data-k="2">2</button><button class="lock-key" data-k="3">3</button>
-      <button class="lock-key" data-k="4">4</button><button class="lock-key" data-k="5">5</button><button class="lock-key" data-k="6">6</button>
-      <button class="lock-key" data-k="7">7</button><button class="lock-key" data-k="8">8</button><button class="lock-key" data-k="9">9</button>
-      <button class="lock-key lock-key-ghost"></button><button class="lock-key" data-k="0">0</button>
-      <button class="lock-key" data-k="back"><span class="material-symbols-outlined">backspace</span></button>
-    </div>
-    <div class="lock-foot" id="lockReset">Esqueceu o PIN? Redefinir</div>
-  </div>
-</div>
-
 <!-- ============== SETTINGS MODAL ============== -->
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-card">
     <div class="modal-head"><h3>Configurações</h3><div class="modal-close" id="settingsClose"><span class="material-symbols-outlined">close</span></div></div>
+
+    <!-- Home: conta, tema, adicionar app -->
     <div class="modal-section" id="settingsHome">
-      <div class="modal-label">Segurança</div>
-      <div class="modal-row" id="rowChangePin"><span><span class="material-symbols-outlined">password</span> Alterar PIN</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <div class="modal-label">Conta</div>
+      <div id="accountLoggedOut">
+        <div class="modal-row" id="rowLogin"><span><span class="material-symbols-outlined">login</span> Entrar</span><span class="material-symbols-outlined">chevron_right</span></div>
+        <div class="form-hint" style="margin:2px 2px 4px;">Sem login, o que você adicionar fica só neste aparelho. Logado, sincroniza com sua conta.</div>
+      </div>
+      <div id="accountLoggedIn" style="display:none;">
+        <div class="auth-account">
+          <span class="material-symbols-outlined">account_circle</span>
+          <div>
+            <div class="auth-email" id="accountEmail">—</div>
+            <div class="auth-status">Sincronizado com a nuvem</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-label" style="margin-top:14px;">Apps</div>
+      <div class="modal-row" id="rowAddApp"><span><span class="material-symbols-outlined">add_circle</span> Adicionar novo app</span><span class="material-symbols-outlined">chevron_right</span></div>
+
       <div class="modal-label" style="margin-top:14px;">Aparência</div>
       <div class="modal-row" id="rowTheme"><span><span class="material-symbols-outlined" id="rowThemeIcon">dark_mode</span> Alternar tema</span><span class="material-symbols-outlined">chevron_right</span></div>
+
       <div class="modal-label" style="margin-top:14px;">Sessão</div>
-      <div class="modal-row danger" id="rowLogout"><span><span class="material-symbols-outlined">logout</span> Sair e bloquear</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <div class="modal-row danger" id="rowLogout"><span><span class="material-symbols-outlined">logout</span> Sair</span><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
-    <div class="modal-section" id="settingsPinFlow" style="display:none;">
-      <div class="modal-label">PIN atual</div>
-      <input class="modal-pin-input" id="pinCurrent" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-      <div class="modal-label">Novo PIN (4 dígitos)</div>
-      <input class="modal-pin-input" id="pinNew" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-      <div class="modal-label">Confirmar novo PIN</div>
-      <input class="modal-pin-input" id="pinConfirm" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-      <div class="modal-msg" id="pinMsg">&nbsp;</div>
-      <button class="modal-btn" id="pinSaveBtn">Salvar novo PIN</button>
+
+    <!-- Login / criar conta -->
+    <div class="modal-section" id="settingsAuthFlow" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-input" id="authEmail" type="email" placeholder="voce@exemplo.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="modal-msg" id="authMsg">&nbsp;</div>
+      <button class="modal-btn" id="authSubmitBtn">Entrar</button>
+      <div class="auth-switch" id="authSwitchMode">Não tem conta? Criar agora</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== APP FORM MODAL (adicionar/editar) ============== -->
+<div class="modal-overlay" id="appFormModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="appFormTitle">Adicionar app</h3><div class="modal-close" id="appFormClose"><span class="material-symbols-outlined">close</span></div></div>
+
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input class="form-input" id="appFieldName" type="text" placeholder="Ex: Portal Puma" maxlength="40">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrição</label>
+      <textarea class="form-textarea" id="appFieldSub" placeholder="Uma frase curta sobre o que esse app faz" maxlength="140"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link</label>
+      <input class="form-input" id="appFieldUrl" type="url" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ícone</label>
+      <div class="form-icon-row">
+        <input class="form-input" id="appFieldIcon" type="text" placeholder="Ex: rocket_launch" maxlength="40">
+        <div class="form-icon-preview"><span class="material-symbols-outlined" id="appFieldIconPreview">apps</span></div>
+      </div>
+      <div class="form-hint">Nome do ícone da biblioteca do Google. Veja as opções em <a href="https://fonts.google.com/icons" target="_blank" rel="noopener">fonts.google.com/icons</a> e copie o nome exatamente como aparece lá.</div>
+    </div>
+
+    <div class="form-actions">
+      <button class="modal-btn ghost" id="appFormCancel" style="flex:1;">Cancelar</button>
+      <button class="modal-btn" id="appFormSave" style="flex:1;">Salvar</button>
+    </div>
+
+    <div class="discard-bar" id="discardBar">
+      <span>Descartar o que você digitou?</span>
+      <div class="discard-bar-actions">
+        <button id="discardKeep">Continuar editando</button>
+        <button class="danger" id="discardConfirm">Descartar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -434,6 +482,9 @@
   <span class="opt" id="optDark"><span class="material-symbols-outlined">dark_mode</span>Escuro</span>
 </div>
 
+<!-- Firebase — mesmo módulo (CloudSync) usado nas suas outras apps,
+     já configurado com o projeto "ajuste-financeiro". -->
+<script type="module" src="firebase-sync.js"></script>
 <script>
   // ===================================================================
   // WORKSPACES — cada guia da barra lateral tem seu próprio label, ícone
@@ -449,44 +500,34 @@
     pessoal: {
       label: 'Pessoal',
       icon: 'home', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Bem-vindo ao seu hub', sub: 'Clique em um app no anel pra ver detalhes, favoritar ou abrir.' },
+      greeting: { title: 'Bem-vindo ao seu hub', sub: 'Clique no + de um círculo pra adicionar seu primeiro app.' },
       apps: [
-        { name:"Gestão Financeira", sub:"Acompanha receitas, contas do mês, cartões de crédito e dívidas em um único painel.", icon:"account_balance_wallet", color:"#F59E0B", status:"online", last:"Hoje", fav:false, url:"https://jcaferreira00-dev.github.io/GASTOS-MENSAIS/" },
-        { name:"Tem Direito?", sub:"Calculadoras gratuitas para descobrir benefícios sociais como PIS/Pasep, FGTS e Bolsa Família.", icon:"balance", color:"#E11D48", status:"online", last:"Ontem", fav:true, url:"https://consultarbeneficios.com.br/" },
-        { name:"Meu Bolso", sub:"Organiza o orçamento em envelopes digitais, mês a mês, sem depender de nuvem.", icon:"savings", color:"#8B5CF6", status:"online", last:"Há 2 dias", fav:true, url:"https://jcaferreira00-dev.github.io/MeuBolso/" },
-        { name:"Holerite", sub:"Calcula o salário líquido com IRRF, INSS, horas extras e adiantamento personalizados.", icon:"receipt_long", color:"#06B6D4", status:"online", last:"Há 1 semana", fav:false, url:"https://jcaferreira00-dev.github.io/cardHolerite/" },
-        { name:"Patrimônio", sub:"Reúne investimentos, imóveis e dívidas, com cotações atualizadas via Brapi.", icon:"trending_up", color:"#10B981", status:"online", last:"Há 4 dias", fav:false, url:"https://jcaferreira00-dev.github.io/Patrimonio/" },
-        { name:"Minhas Contas", sub:"Controla receitas e pagamentos mês a mês, com fechamento e histórico.", icon:"account_balance", color:"#3B82F6", status:"online", last:"Há 3 dias", fav:false, url:"https://jcaferreira00-dev.github.io/ContasdoMes/" },
-        { name:"Caderneta", sub:"Controla quem te deve fiado, valores mensais combinados e o que já foi recebido.", icon:"menu_book", color:"#EC4899", status:"online", last:"Novo", fav:false, url:"https://jcaferreira00-dev.github.io/Fiado/" },
+        { name:"App 1", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#F59E0B", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 2", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#E11D48", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 3", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#8B5CF6", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 4", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#06B6D4", status:"empty", last:"—", fav:false, url:"" },
       ]
     },
     profissional: {
       label: 'Profissional', // <- troque pelo nome que preferir.
       icon: 'work', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Seus links de trabalho', sub: 'Vamos começar a trabalhar!' },
+      greeting: { title: 'Seus links de trabalho', sub: 'Clique no + de um círculo pra adicionar seu primeiro app.' },
       apps: [
-        { name:"PI", sub:"PI Data Link", icon:"Ssid_chart", color:"#3B82F6", status:"online", last:"—", fav:false, url:"https://ortpivision.klabin.com.br/PIVision/#/Displays/34940/Joao-Carlos---Trend" },
-        { name:"Notas e Ocorrências", sub:"Local para criar notas e ocorrencias do turno, bem com lançar os apontamentos da OEE.", icon:"Note_Add", color:"#10B981", status:"online", last:"—", fav:false, url:"http://ortsrvprd0195:50000/XMII/Illuminator?xsrfid=D8aQrxEKy7sxmuzXB5hlTJAAdnD8CL134fU&service=Personalization&sniffer=Netscape%2C5%2C784%2C1046%2C" },
-        { name:"SRP Qualidade", sub:"Acessar o boletim de qualidade, no Microsoft EDGE.", icon:"Workspace_Premium", color:"#F59E0B", status:"online", last:"—", fav:false, url:"http://ortsrv021-vm:50000/XMII/CM/SRP_CELULOSE-UI/index.html" },
-        { name:"Qualidade", sub:"Qualidade e produção do dia", icon:"diamond", color:"#65A30D", status:"online", last:"—", fav:false, url:"https://gerenciadefacilities.com.br/restrito.php" },
-	{ name:"SEGOP", sub:"Segurança operacional, malhas em manual, forces, alarmes.", icon:"detector_alarm", color:"#E11D48", status:"online", last:"—", fav:false, url:"https://ortsegop.klabin.com.br/Reports/powerbi/Report%20Geral" },
-	{ name:"EPI", sub:"Solicitação de EPI's", icon:"apparel", color:"#155E75", status:"online", last:"—", fav:false, url:"https://epifacil.klabin.com.br/Login.aspx" },
-	{ name:"Portal Puma", sub:"Portal", icon:"docs", color:"#84CC16", status:"online", last:"—", fav:false, url:"https://apps.powerapps.com/play/e/default-a2fda012-a924-4452-b67d-be71576f6506/a/84327d08-d4d2-449f-975f-5daa5fe80dff?tenantId=a2fda012-a924-4452-b67d-be71576f6506&hidenavbar=true" },
-	{ name:"Klabin Dashboards", sub:"Dashboard", icon:"stacked_bar_chart", color:"#8E5CF9", status:"online", last:"—", fav:false, url:"https://ortpi.klabin.com.br/dashboardssecurityapi/Account/Login?ReturnUrl=%2Fdashboardssecurityapi%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_type%3Dcode%26client_id%3DIhmKlabinDashboards%26state%3DczBBOG1CZ0lGcXFwUGRuNkVaMTQwcXNXYjdNVm9ZSi1jYjhvelouTFJvMFhj%26redirect_uri%3Dhttps%253A%252F%252Fortpi.klabin.com.br%252Fdashboards%252Flogin-callback%26scope%3Dopenid%2520profile%2520email%2520ihm_klabin_dashboards_api%26code_challenge%3DDJo_UPmOiz95PrwTL4BfxACSAG6qO1W3LKWV_mpsing%26code_challenge_method%3DS256%26nonce%3DczBBOG1CZ0lGcXFwUGRuNkVaMTQwcXNXYjdNVm9ZSi1jYjhvelouTFJvMFhj" },
-	{ name:"Minha Klabin", sub:"Minha Klabin", icon:"factory", color:"#16A34A", status:"online", last:"—", fav:false, url:"https://minha.klabin.com.br/minhaklabin"},
-	{ name:"Office 365", sub:"Aplicativos Microsoft", icon:"cloud_done", color:"#06B6D4", status:"online", last:"—", fav:false, url:"https://m365.cloud.microsoft/apps?auth=2&home=1&username=jcaferreira@klabin.com.br&login_hint=jcaferreira@klabin.com.br" },
-
-	      ]
+        { name:"App 1", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#3B82F6", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 2", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#10B981", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 3", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#F59E0B", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 4", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#65A30D", status:"empty", last:"—", fav:false, url:"" },
+      ]
     },
     advocacia: {
       label: 'Advocacia',
       icon: 'gavel', // <- troque o ícone desta guia aqui
-      greeting: { title: 'Seus links de advocacia', sub: 'Edite estes cards com nome, ícone e link de cada ferramenta que você usa na advocacia.' },
+      greeting: { title: 'Seus links de advocacia', sub: 'Clique no + de um círculo pra adicionar seu primeiro app.' },
       apps: [
-        { name:"App 1", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#E11D48", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 2", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#06B6D4", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 3", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#EC4899", status:"empty", last:"—", fav:false, url:"" },
-        { name:"App 4", sub:"Edite este card com nome, descrição, ícone e link.", icon:"add", color:"#6D5EF0", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 1", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#E11D48", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 2", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#06B6D4", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 3", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#EC4899", status:"empty", last:"—", fav:false, url:"" },
+        { name:"App 4", sub:"Clique pra adicionar nome, descrição, ícone e link.", icon:"add", color:"#6D5EF0", status:"empty", last:"—", fav:false, url:"" },
       ]
     }
   };
@@ -669,7 +710,7 @@
       node.style.borderColor = app.color + 'aa';
       node.style.color = app.color;
       node.innerHTML = `<div class="app-node-inner"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>`;
-      node.addEventListener('click', () => selectApp(i));
+      node.addEventListener('click', () => { if (apps[i].status === 'empty') openAppForm(currentWs, i); else selectApp(i); });
       node.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectApp(i);} });
       wrap.appendChild(node);
       nodeEls.push(node);
@@ -700,7 +741,7 @@
       row.innerHTML = `
         <div class="m-icon" style="background:${app.color}18;"><span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span></div>
         <div><h4>${app.name}</h4><p>${app.sub.slice(0,50)}${app.sub.length>50?'…':''}</p></div>`;
-      row.addEventListener('click', ()=>selectApp(i));
+      row.addEventListener('click', ()=>{ if (apps[i].status === 'empty') openAppForm(currentWs, i); else selectApp(i); });
       mobileList.appendChild(row);
       mRows.push(row);
     });
@@ -805,12 +846,16 @@
         </button>
         <button class="btn btn-ghost" id="copyBtn">
           <span class="material-symbols-outlined">content_copy</span>Copiar link
+        </button>
+        <button class="btn btn-ghost" id="editBtn">
+          <span class="material-symbols-outlined">edit</span>Editar
         </button>` : ''}
       </div>`;
 
     if (!isEmpty) {
       document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; saveFavorites(); renderDetail(); renderFavorites(); });
       document.getElementById('openBtn').addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
+      document.getElementById('editBtn').addEventListener('click', () => openAppForm(currentWs, selected));
       document.getElementById('copyBtn').addEventListener('click', (e) => {
         navigator.clipboard.writeText(app.url).then(() => {
           const btn = e.currentTarget;
@@ -1057,18 +1102,105 @@
   }
   if (!reduceMotion) requestAnimationFrame(tickWave);
 
+  // ============== NUVEM — login + sincronização via CloudSync ==============
+  // Usa o mesmo firebase-sync.js (window.CloudSync) das suas outras apps,
+  // já configurado com o projeto "ajuste-financeiro". Como esse documento
+  // (usuarios/{uid}) é compartilhado entre apps, os dados do Nexo Hub ficam
+  // guardados dentro de um campo próprio ("nexoHub"), sem sobrescrever os
+  // campos que Controle Financeiro/Patrimônio/etc. já usam ali.
+  let cloudReady = false;
+  let currentUser = null;
+  const LOCAL_DATA_KEY = 'nexo-hub-local-data';
+
+  function loadLocalData() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LOCAL_DATA_KEY) || 'null');
+      if (saved) mergeWorkspacesData(saved);
+    } catch (e) { /* ignore corrupted storage */ }
+  }
+
+  function mergeWorkspacesData(saved) {
+    Object.keys(saved).forEach(ws => {
+      if (workspaces[ws] && Array.isArray(saved[ws].apps)) workspaces[ws].apps = saved[ws].apps;
+    });
+    apps = workspaces[currentWs].apps;
+  }
+
+  async function loadCloudData() {
+    if (!cloudReady || !currentUser) return;
+    try {
+      const doc = await window.CloudSync.buscarDaNuvem(currentUser.uid);
+      if (doc && doc.nexoHub && doc.nexoHub.workspaces) mergeWorkspacesData(doc.nexoHub.workspaces);
+      else await persistData(); // primeiro login: cria o campo nexoHub com o estado atual
+    } catch (e) { console.warn('Falha ao carregar dados da nuvem:', e); }
+  }
+
+  async function persistData() {
+    if (cloudReady && currentUser) {
+      try {
+        const existing = (await window.CloudSync.buscarDaNuvem(currentUser.uid)) || {};
+        existing.nexoHub = { workspaces, updatedAt: Date.now() };
+        await window.CloudSync.salvarNaNuvem(currentUser.uid, existing);
+      } catch (e) { console.warn('Falha ao sincronizar com a nuvem:', e); }
+    } else {
+      try { localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(workspaces)); }
+      catch (e) { /* ignore */ }
+    }
+  }
+
+  async function handleAuthChange(user) {
+    currentUser = user;
+    const loggedOut = document.getElementById('accountLoggedOut');
+    const loggedIn = document.getElementById('accountLoggedIn');
+    if (user) {
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = '';
+      document.getElementById('accountEmail').textContent = user.email;
+      await loadCloudData();
+    } else {
+      loggedOut.style.display = '';
+      loggedIn.style.display = 'none';
+      loadLocalData();
+    }
+    rebuildEverything();
+  }
+
+  // firebase-sync.js roda como <script type="module">, que só termina de
+  // carregar DEPOIS deste script — por isso escutamos o evento que ele
+  // dispara ("cloudsync-pronto") em vez de assumir que window.CloudSync já
+  // existe aqui em cima. Até isso acontecer (ou se nunca acontecer, por
+  // exemplo sem internet), o app roda com os dados salvos localmente.
+  function initCloudSync() {
+    cloudReady = true;
+    window.CloudSync.onAuthStateChanged(handleAuthChange);
+  }
+  if (window.CloudSync) initCloudSync();
+  else window.addEventListener('cloudsync-pronto', initCloudSync, { once: true });
+
+  loadLocalData();
+  rebuildEverything();
+
+  function rebuildEverything() {
+    apps = workspaces[currentWs].apps;
+    buildWheel();
+    updateWavePeriod();
+    updateStatusStrip();
+    renderWheelCenter();
+    renderDetail();
+    renderFavorites();
+    applyFilters();
+    waveCenterIndex = -1;
+  }
+
   // ============== CONFIGURAÇÕES (modal) ==============
   const settingsModal = document.getElementById('settingsModal');
   const settingsHome = document.getElementById('settingsHome');
-  const settingsPinFlow = document.getElementById('settingsPinFlow');
+  const settingsAuthFlow = document.getElementById('settingsAuthFlow');
+  let authMode = 'login'; // 'login' | 'signup'
+
   function openSettings() {
     settingsHome.style.display = '';
-    settingsPinFlow.style.display = 'none';
-    document.getElementById('pinCurrent').value = '';
-    document.getElementById('pinNew').value = '';
-    document.getElementById('pinConfirm').value = '';
-    document.getElementById('pinMsg').textContent = '\u00a0';
-    document.getElementById('pinMsg').className = 'modal-msg';
+    settingsAuthFlow.style.display = 'none';
     settingsModal.classList.add('show');
   }
   function closeSettings() { settingsModal.classList.remove('show'); }
@@ -1080,127 +1212,153 @@
     setTheme(body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });
 
-  document.getElementById('rowChangePin').addEventListener('click', () => {
-    settingsHome.style.display = 'none';
-    settingsPinFlow.style.display = '';
-  });
-
-  document.getElementById('rowLogout').addEventListener('click', () => {
+  document.getElementById('rowAddApp').addEventListener('click', () => {
     closeSettings();
-    logout();
+    addBlankAppSlot();
   });
 
-  document.getElementById('navLogout').addEventListener('click', logout);
-
-  function logout() {
-    sessionStorage.removeItem('nexo-hub-unlocked');
-    location.reload();
-  }
-
-  // ============== PIN — bloqueio local, sem sincronização/servidor ==============
-  const PIN_HASH_KEY = 'nexo-hub-pin-hash';
-  async function hashPin(pin) {
-    const enc = new TextEncoder().encode('nexo-hub::' + pin);
-    const buf = await crypto.subtle.digest('SHA-256', enc);
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  document.getElementById('pinSaveBtn').addEventListener('click', async () => {
-    const cur = document.getElementById('pinCurrent').value.trim();
-    const nw = document.getElementById('pinNew').value.trim();
-    const cf = document.getElementById('pinConfirm').value.trim();
-    const msg = document.getElementById('pinMsg');
-    const storedHash = localStorage.getItem(PIN_HASH_KEY);
-    if (storedHash && (await hashPin(cur)) !== storedHash) {
-      msg.textContent = 'PIN atual incorreto.'; msg.className = 'modal-msg err'; return;
-    }
-    if (!/^\d{4}$/.test(nw)) {
-      msg.textContent = 'O novo PIN precisa ter 4 dígitos.'; msg.className = 'modal-msg err'; return;
-    }
-    if (nw !== cf) {
-      msg.textContent = 'A confirmação não confere.'; msg.className = 'modal-msg err'; return;
-    }
-    localStorage.setItem(PIN_HASH_KEY, await hashPin(nw));
-    msg.textContent = 'PIN atualizado com sucesso!'; msg.className = 'modal-msg ok';
-    setTimeout(closeSettings, 900);
+  document.getElementById('rowLogin').addEventListener('click', () => {
+    authMode = 'login';
+    refreshAuthCopy();
+    settingsHome.style.display = 'none';
+    settingsAuthFlow.style.display = '';
+    setTimeout(() => document.getElementById('authEmail').focus(), 60);
   });
 
-  // ---- Tela de bloqueio (teclado numérico) ----
-  const lockScreen = document.getElementById('lockScreen');
-  const lockDots = document.getElementById('lockDots');
-  const lockTitle = document.getElementById('lockTitle');
-  const lockSub = document.getElementById('lockSub');
-  const lockError = document.getElementById('lockError');
-  const lockReset = document.getElementById('lockReset');
-  let lockBuffer = '';
-  let lockStage = localStorage.getItem(PIN_HASH_KEY) ? 'login' : 'setup-1';
-  let firstPin = '';
-
-  function refreshLockCopy() {
-    if (lockStage === 'setup-1') { lockTitle.textContent = 'Crie um PIN'; lockSub.textContent = 'Escolha 4 dígitos pra proteger seu hub neste dispositivo.'; }
-    else if (lockStage === 'setup-2') { lockTitle.textContent = 'Confirme o PIN'; lockSub.textContent = 'Digite os mesmos 4 dígitos de novo.'; }
-    else { lockTitle.textContent = 'Digite seu PIN'; lockSub.textContent = 'Acesso local ao seu hub — nada é enviado pra nenhum servidor.'; }
-    lockReset.style.display = lockStage === 'login' ? '' : 'none';
-  }
-  function renderDots() {
-    lockDots.querySelectorAll('.lock-dot').forEach((d, i) => d.classList.toggle('filled', i < lockBuffer.length));
-  }
-  function lockErrorFlash(text) {
-    lockError.textContent = text;
-    lockDots.classList.remove('shake'); void lockDots.offsetWidth; lockDots.classList.add('shake');
-    lockBuffer = ''; renderDots();
-    setTimeout(() => { lockError.textContent = '\u00a0'; }, 1600);
-  }
-  async function submitBuffer() {
-    if (lockStage === 'setup-1') {
-      firstPin = lockBuffer; lockBuffer = ''; lockStage = 'setup-2'; refreshLockCopy(); renderDots(); return;
-    }
-    if (lockStage === 'setup-2') {
-      if (lockBuffer !== firstPin) {
-        lockStage = 'setup-1'; firstPin = ''; refreshLockCopy();
-        lockErrorFlash('Os PINs não coincidem — tente de novo.');
-        return;
-      }
-      localStorage.setItem(PIN_HASH_KEY, await hashPin(lockBuffer));
-      unlock();
-      return;
-    }
-    // login
-    const ok = (await hashPin(lockBuffer)) === localStorage.getItem(PIN_HASH_KEY);
-    if (ok) { unlock(); }
-    else { lockErrorFlash('PIN incorreto — tente de novo.'); }
-  }
-  function unlock() {
-    sessionStorage.setItem('nexo-hub-unlocked', '1');
-    lockScreen.classList.add('hidden');
-    lockBuffer = ''; renderDots();
-  }
-  document.getElementById('lockPad').addEventListener('click', (e) => {
-    const btn = e.target.closest('.lock-key');
-    if (!btn || btn.classList.contains('lock-key-ghost')) return;
-    const k = btn.dataset.k;
-    if (k === 'back') { lockBuffer = lockBuffer.slice(0, -1); renderDots(); return; }
-    if (lockBuffer.length >= 4) return;
-    lockBuffer += k;
-    renderDots();
-    if (lockBuffer.length === 4) submitBuffer();
+  document.getElementById('authSwitchMode').addEventListener('click', () => {
+    authMode = authMode === 'login' ? 'signup' : 'login';
+    refreshAuthCopy();
   });
+
+  function refreshAuthCopy() {
+    document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Entrar' : 'Criar conta';
+    document.getElementById('authSwitchMode').textContent = authMode === 'login' ? 'Não tem conta? Criar agora' : 'Já tem conta? Entrar';
+    document.getElementById('authMsg').textContent = '\u00a0';
+    document.getElementById('authMsg').className = 'modal-msg';
+  }
+
+  document.getElementById('authSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('authEmail').value.trim();
+    const pass = document.getElementById('authPassword').value;
+    const msg = document.getElementById('authMsg');
+    if (!cloudReady) { msg.textContent = 'Login ainda carregando — tente de novo em um instante.'; msg.className = 'modal-msg err'; return; }
+    if (!email || !pass) { msg.textContent = 'Preencha e-mail e senha.'; msg.className = 'modal-msg err'; return; }
+    try {
+      if (authMode === 'login') await window.CloudSync.login(email, pass);
+      else await window.CloudSync.cadastrar(email, pass);
+      msg.textContent = 'Pronto!'; msg.className = 'modal-msg ok';
+      setTimeout(closeSettings, 500);
+    } catch (e) {
+      msg.textContent = authErrorMessage(e); msg.className = 'modal-msg err';
+    }
+  });
+
+  function authErrorMessage(e) {
+    const map = {
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/user-not-found': 'Conta não encontrada.',
+      'auth/wrong-password': 'Senha incorreta.',
+      'auth/invalid-credential': 'E-mail ou senha incorretos.',
+      'auth/email-already-in-use': 'Esse e-mail já tem conta — tente entrar.',
+      'auth/weak-password': 'Senha muito curta (mínimo 6 caracteres).'
+    };
+    return map[e.code] || 'Não deu pra completar. Tente de novo.';
+  }
+
+  document.getElementById('rowLogout').addEventListener('click', () => { closeSettings(); logout(); });
+  document.getElementById('navLogout').addEventListener('click', () => { closeSettings(); logout(); });
+
+  async function logout() {
+    if (cloudReady && currentUser) { try { await window.CloudSync.logout(); } catch (e) { /* ignore */ } }
+    else location.reload();
+  }
+
+  // ============== FORMULÁRIO DE APP (adicionar/editar) ==============
+  const appFormModal = document.getElementById('appFormModal');
+  const appFormTitle = document.getElementById('appFormTitle');
+  const fName = document.getElementById('appFieldName');
+  const fSub = document.getElementById('appFieldSub');
+  const fUrl = document.getElementById('appFieldUrl');
+  const fIcon = document.getElementById('appFieldIcon');
+  const fIconPreview = document.getElementById('appFieldIconPreview');
+  const discardBar = document.getElementById('discardBar');
+  let formTarget = null;   // { ws, idx }
+  let formInitial = null;  // snapshot dos campos, pra saber se algo mudou
+
+  function openAppForm(ws, idx) {
+    const app = workspaces[ws].apps[idx];
+    formTarget = { ws, idx };
+    const isEmpty = app.status === 'empty';
+    appFormTitle.textContent = isEmpty ? 'Adicionar app' : 'Editar app';
+    fName.value = isEmpty ? '' : app.name;
+    fSub.value = isEmpty ? '' : app.sub;
+    fUrl.value = isEmpty ? '' : app.url;
+    fIcon.value = isEmpty ? '' : app.icon;
+    fName.style.borderColor = ''; fUrl.style.borderColor = '';
+    updateIconPreview();
+    formInitial = snapshotForm();
+    discardBar.classList.remove('show');
+    appFormModal.classList.add('show');
+    setTimeout(() => fName.focus(), 60);
+  }
+  function snapshotForm() { return JSON.stringify([fName.value, fSub.value, fUrl.value, fIcon.value]); }
+  function isFormDirty() { return snapshotForm() !== formInitial; }
+  function updateIconPreview() { fIconPreview.textContent = fIcon.value.trim() || 'apps'; }
+  fIcon.addEventListener('input', updateIconPreview);
+
+  // Clicar fora, no X, ou apertar Esc fecha — mas se algo foi digitado,
+  // primeiro pede confirmação (como o Google faz nos formulários dele),
+  // pra você nunca perder o que já tinha escrito sem querer.
+  function closeAppForm(force) {
+    if (!force && isFormDirty()) { discardBar.classList.add('show'); return; }
+    appFormModal.classList.remove('show');
+    discardBar.classList.remove('show');
+    formTarget = null;
+  }
+  document.getElementById('appFormClose').addEventListener('click', () => closeAppForm(false));
+  document.getElementById('appFormCancel').addEventListener('click', () => closeAppForm(false));
+  appFormModal.addEventListener('click', (e) => { if (e.target === appFormModal) closeAppForm(false); });
   document.addEventListener('keydown', (e) => {
-    if (lockScreen.classList.contains('hidden')) return;
-    if (/^[0-9]$/.test(e.key) && lockBuffer.length < 4) { lockBuffer += e.key; renderDots(); if (lockBuffer.length === 4) submitBuffer(); }
-    else if (e.key === 'Backspace') { lockBuffer = lockBuffer.slice(0, -1); renderDots(); }
+    if (e.key === 'Escape' && appFormModal.classList.contains('show')) closeAppForm(false);
   });
-  lockReset.addEventListener('click', () => {
-    if (!confirm('Isso vai apagar o PIN salvo neste dispositivo e pedir pra você criar um novo. Continuar?')) return;
-    localStorage.removeItem(PIN_HASH_KEY);
-    lockStage = 'setup-1'; firstPin = ''; lockBuffer = '';
-    refreshLockCopy(); renderDots();
+  document.getElementById('discardKeep').addEventListener('click', () => discardBar.classList.remove('show'));
+  document.getElementById('discardConfirm').addEventListener('click', () => closeAppForm(true));
+
+  document.getElementById('appFormSave').addEventListener('click', () => {
+    if (!formTarget) return;
+    const name = fName.value.trim();
+    const url = fUrl.value.trim();
+    fName.style.borderColor = name ? '' : '#F43F5E';
+    fUrl.style.borderColor = url ? '' : '#F43F5E';
+    if (!name || !url) return;
+
+    const { ws, idx } = formTarget;
+    const app = workspaces[ws].apps[idx];
+    app.name = name;
+    app.sub = fSub.value.trim() || 'Sem descrição.';
+    app.url = url;
+    app.icon = fIcon.value.trim() || 'apps';
+    app.status = 'online';
+    app.last = 'Novo';
+
+    persistData();
+    closeAppForm(true);
+
+    if (ws === currentWs) {
+      apps = workspaces[currentWs].apps;
+      buildWheel(); updateWavePeriod(); updateStatusStrip(); renderFavorites(); applyFilters();
+      selectApp(idx);
+    }
+    if (viewMode !== 'all') renderBlockView();
   });
 
-  refreshLockCopy();
-  renderDots();
-  if (sessionStorage.getItem('nexo-hub-unlocked') === '1') {
-    lockScreen.classList.add('hidden');
+  function addBlankAppSlot() {
+    const palette = ['#E11D48','#06B6D4','#EC4899','#6D5EF0','#F59E0B','#10B981','#3B82F6','#65A30D'];
+    const color = palette[workspaces[currentWs].apps.length % palette.length];
+    workspaces[currentWs].apps.push({ name:'Novo app', sub:'Edite este card com nome, descrição, ícone e link.', icon:'add', color, status:'empty', last:'—', fav:false, url:'' });
+    apps = workspaces[currentWs].apps;
+    buildWheel(); updateWavePeriod(); updateStatusStrip(); renderDetail(); renderFavorites(); applyFilters();
+    openAppForm(currentWs, apps.length - 1);
   }
 
   if ('serviceWorker' in navigator) {
