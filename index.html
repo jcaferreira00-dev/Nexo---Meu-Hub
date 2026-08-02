@@ -156,8 +156,9 @@
   .detail-empty .material-symbols-outlined { font-size:30px; display:block; margin:0 auto 10px; color:var(--border-strong); }
 
   .detail-head { display:flex; align-items:flex-start; gap:16px; margin-bottom:18px; }
-  .detail-icon { width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border-strong); flex-shrink:0; }
-  .detail-icon .material-symbols-outlined { font-size:26px; }
+  .detail-icon { width:68px; height:68px; border-radius:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--border-strong); flex-shrink:0; position:relative; }
+  .detail-icon .material-symbols-outlined { font-size:30px; }
+  .detail-favicon { position:absolute; bottom:-6px; right:-6px; width:28px; height:28px; border-radius:9px; border:2px solid var(--panel); background:var(--panel); box-shadow:var(--shadow); object-fit:contain; padding:3px; }
   .detail-title h2 { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:600; margin-bottom:4px; }
   .detail-title .tag { font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:5px; }
   .detail-title .tag .material-symbols-outlined { font-size:13px; }
@@ -748,6 +749,20 @@
   }
 
   function hostname(url) { try { return new URL(url).hostname; } catch(e) { return ''; } }
+  // Links internos (intranet da Klabin, hosts sem domínio público, IP puro,
+  // porta explícita) não são alcançáveis por um serviço de favicon externo
+  // — nem tenta, pra não gastar uma requisição à toa nem vazar esses hosts
+  // pro Google. Nesses casos o painel mostra só o ícone grande mesmo.
+  function looksInternal(url) {
+    try {
+      const u = new URL(url);
+      if (u.hostname.endsWith('.klabin.com.br')) return true;
+      if (u.port) return true;
+      if (!u.hostname.includes('.')) return true;
+      if (/^\d{1,3}(\.\d{1,3}){3}$/.test(u.hostname)) return true;
+      return false;
+    } catch (e) { return true; }
+  }
 
   function updateStatusStrip() {
     const onlineCount = apps.filter(a => a.status !== 'empty').length;
@@ -822,10 +837,12 @@
     }
     const app = apps[selected];
     const isEmpty = app.status === 'empty';
+    const showFavicon = !isEmpty && !looksInternal(app.url);
     panel.innerHTML = `
       <div class="detail-head">
         <div class="detail-icon" style="background:${app.color}18;border-color:${app.color}88;">
           <span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span>
+          ${showFavicon ? `<img class="detail-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname(app.url))}&sz=64" alt="" onerror="this.remove()">` : ''}
         </div>
         <div class="detail-title">
           <h2>${app.name}</h2>

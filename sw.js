@@ -1,5 +1,5 @@
-// bump this on every deploy so old caches get cleared out
-const CACHE_VERSION = 'nexo-v1';
+// bump this whenever the offline app-shell list below changes
+const CACHE_VERSION = 'nexo-v2';
 const CACHE_NAME = `nexo-hub-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -35,11 +35,33 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // only handle GET requests on our own origin — everything else (Google Fonts,
-  // Material Symbols CDN, and eventually Firebase/API calls) goes straight to the network
+  // Material Symbols CDN, Firebase, etc.) goes straight to the network
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
 
+  // HTML/navigation requests: network-first. Sempre tenta buscar a versão
+  // mais nova primeiro — só cai pro cache se estiver offline. Isso evita o
+  // efeito "preciso recarregar duas vezes pra ver a atualização", que
+  // acontecia com o cache-first de antes.
+  const isHTML = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/');
+  if (isHTML) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Outros arquivos (ícones, manifest): cache-first com atualização em
+  // segundo plano — raramente mudam, então prioriza velocidade/offline.
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request)
