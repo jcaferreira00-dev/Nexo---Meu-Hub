@@ -321,6 +321,16 @@
   .form-hint a:hover { text-decoration:underline; }
   .form-actions { display:flex; gap:8px; margin-top:6px; }
   .form-actions .modal-btn.ghost { background:transparent; color:var(--text); border:1.5px solid var(--border-strong); }
+  .color-swatch-row { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:10px; }
+  .color-swatch { width:30px; height:30px; border-radius:50%; cursor:pointer; border:none; padding:0; position:relative; flex-shrink:0; transition:transform .15s ease; }
+  .color-swatch:hover { transform:scale(1.1); }
+  .color-swatch.active { box-shadow:0 0 0 2px var(--panel), 0 0 0 4px var(--text); }
+  .color-swatch.active .material-symbols-outlined { display:flex; }
+  .color-swatch .material-symbols-outlined { display:none; align-items:center; justify-content:center; position:absolute; inset:0; color:#fff; font-size:16px; }
+  .color-custom-row { display:flex; align-items:center; gap:10px; }
+  .color-custom-input { width:34px; height:34px; border-radius:9px; border:1.5px solid var(--border-strong); padding:0; background:none; cursor:pointer; flex-shrink:0; }
+  .modal-btn.danger-solid { background:#F43F5E; color:#fff; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .modal-btn.danger-solid:hover { opacity:.88; }
   .discard-bar { display:none; align-items:center; justify-content:space-between; gap:10px; background:var(--panel-2); border:1px solid var(--border-strong); border-radius:12px; padding:12px 14px; margin-top:14px; }
   .discard-bar.show { display:flex; }
   .discard-bar span { font-size:12.5px; }
@@ -448,11 +458,22 @@
       </div>
       <div class="form-hint">Nome do ícone da biblioteca do Google. Veja as opções em <a href="https://fonts.google.com/icons" target="_blank" rel="noopener">fonts.google.com/icons</a> e copie o nome exatamente como aparece lá.</div>
     </div>
+    <div class="form-group">
+      <label class="form-label">Cor</label>
+      <div class="color-swatch-row" id="colorSwatchRow"></div>
+      <div class="color-custom-row">
+        <input type="color" id="appFieldColorCustom" class="color-custom-input" title="Cor personalizada">
+        <div class="form-hint" style="margin:0;">Ou escolha uma cor personalizada</div>
+      </div>
+    </div>
 
     <div class="form-actions">
       <button class="modal-btn ghost" id="appFormCancel" style="flex:1;">Cancelar</button>
       <button class="modal-btn" id="appFormSave" style="flex:1;">Salvar</button>
     </div>
+    <button class="modal-btn danger-solid" id="appFormDelete" style="margin-top:8px;">
+      <span class="material-symbols-outlined">delete</span>Excluir app
+    </button>
 
     <div class="discard-bar" id="discardBar">
       <span>Descartar o que você digitou?</span>
@@ -1484,9 +1505,35 @@
   const fUrl = document.getElementById('appFieldUrl');
   const fIcon = document.getElementById('appFieldIcon');
   const fIconPreview = document.getElementById('appFieldIconPreview');
+  const fColorCustom = document.getElementById('appFieldColorCustom');
+  const colorSwatchRow = document.getElementById('colorSwatchRow');
+  const appFormDelete = document.getElementById('appFormDelete');
   const discardBar = document.getElementById('discardBar');
   let formTarget = null;   // { ws, idx }
   let formInitial = null;  // snapshot dos campos, pra saber se algo mudou
+  let formColor = null;    // cor escolhida no form
+
+  function buildColorSwatches() {
+    colorSwatchRow.innerHTML = '';
+    COLOR_POOL.forEach((c) => {
+      const sw = document.createElement('button');
+      sw.type = 'button';
+      sw.className = 'color-swatch';
+      sw.style.background = c;
+      sw.dataset.color = c;
+      sw.innerHTML = '<span class="material-symbols-outlined">check</span>';
+      sw.addEventListener('click', () => setFormColor(c));
+      colorSwatchRow.appendChild(sw);
+    });
+  }
+  function setFormColor(c) {
+    formColor = c.toUpperCase();
+    fColorCustom.value = formColor;
+    [...colorSwatchRow.children].forEach((sw) => {
+      sw.classList.toggle('active', sw.dataset.color.toUpperCase() === formColor);
+    });
+  }
+  fColorCustom.addEventListener('input', () => setFormColor(fColorCustom.value));
 
   function openAppForm(ws, idx) {
     const app = workspaces[ws].apps[idx];
@@ -1499,12 +1546,14 @@
     fIcon.value = isEmpty ? '' : app.icon;
     fName.style.borderColor = ''; fUrl.style.borderColor = '';
     updateIconPreview();
+    if (!colorSwatchRow.children.length) buildColorSwatches();
+    setFormColor(app.color || pickUniqueColor(ws));
     formInitial = snapshotForm();
     discardBar.classList.remove('show');
     appFormModal.classList.add('show');
     setTimeout(() => fName.focus(), 60);
   }
-  function snapshotForm() { return JSON.stringify([fName.value, fSub.value, fUrl.value, fIcon.value]); }
+  function snapshotForm() { return JSON.stringify([fName.value, fSub.value, fUrl.value, fIcon.value, formColor]); }
   function isFormDirty() { return snapshotForm() !== formInitial; }
   function updateIconPreview() { fIconPreview.textContent = fIcon.value.trim() || 'apps'; }
   fIcon.addEventListener('input', updateIconPreview);
@@ -1541,6 +1590,7 @@
     app.sub = fSub.value.trim() || 'Sem descrição.';
     app.url = url;
     app.icon = fIcon.value.trim() || 'apps';
+    app.color = formColor || app.color;
     app.status = 'online';
     app.last = 'Novo';
 
@@ -1551,6 +1601,30 @@
       apps = workspaces[currentWs].apps;
       buildWheel(); updateWavePeriod(); updateStatusStrip(); renderFavorites(); applyFilters();
       selectApp(idx);
+    }
+    if (viewMode !== 'all') renderBlockView();
+  });
+
+  appFormDelete.addEventListener('click', () => {
+    if (!formTarget) return;
+    const { ws, idx } = formTarget;
+    const app = workspaces[ws].apps[idx];
+    const isEmpty = app.status === 'empty';
+    if (!isEmpty && !confirm(`Excluir "${app.name}"? Isso remove o atalho e todas as informações dele. Essa ação não pode ser desfeita.`)) return;
+
+    workspaces[ws].apps.splice(idx, 1);
+    persistData();
+    appFormModal.classList.remove('show');
+    discardBar.classList.remove('show');
+    formTarget = null;
+
+    if (ws === currentWs) {
+      apps = workspaces[currentWs].apps;
+      if (selected !== null) {
+        if (selected === idx) selected = null;
+        else if (selected > idx) selected -= 1;
+      }
+      buildWheel(); updateWavePeriod(); updateStatusStrip(); renderDetail(); renderFavorites(); applyFilters();
     }
     if (viewMode !== 'all') renderBlockView();
   });
