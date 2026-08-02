@@ -234,12 +234,71 @@
     .wheel-hole { inset:72px; }
     .detail-panel { width:100%; }
   }
-  @media (max-width:900px) { .sidebar { display:none; } .main { padding:20px 20px 90px; } }
+
+  /* ============== MOBILE (<900px) ==============
+     A sidebar não some mais — ela vira uma barra fixa embaixo, com os
+     mesmos itens de navegação (Início/Favoritos/Recentes/Config/Sair),
+     só que na horizontal. As guias (Pessoal/Profissional/Advocacia) ganham
+     uma cópia visível no topo do conteúdo, já que a original ficou escondida
+     dentro da sidebar (que agora só mostra os ícones de navegação). */
+  .workspace-tabs-mobile { display:none; }
+  .detail-backdrop { display:none; }
+  .sheet-close-btn { display:none; }
+
+  @media (max-width:900px) {
+    .main { padding:20px 16px calc(76px + env(safe-area-inset-bottom)); }
+
+    .sidebar {
+      display:flex; flex-direction:row; align-items:center; justify-content:space-around;
+      position:fixed; left:0; right:0; bottom:0; top:auto; width:100%; height:auto;
+      padding:7px 6px calc(7px + env(safe-area-inset-bottom));
+      border-right:none; border-top:1px solid var(--border);
+      z-index:80; box-shadow:0 -6px 24px rgba(0,0,0,0.08);
+    }
+    .sidebar .brand, .sidebar .workspace-tabs, .sidebar .nav-spacer { display:none; }
+    .sidebar .nav, .sidebar .nav-bottom { display:flex; flex-direction:row; gap:2px; flex:1; padding:0; border:none; }
+    .sidebar .nav-item {
+      flex:1; flex-direction:column; gap:2px; padding:6px 2px; font-size:9.5px;
+      text-align:center; border-radius:11px; white-space:nowrap;
+    }
+    .sidebar .nav-item .material-symbols-outlined { font-size:21px; }
+
+    .workspace-tabs-mobile { display:flex; margin-bottom:18px; }
+    .theme-pill { bottom:calc(70px + env(safe-area-inset-bottom)); right:16px; }
+  }
+
+  /* Painel de detalhes vira uma "gaveta" que sobe de baixo, em vez de
+     empurrar a listinha de apps pra baixo da tela. */
   @media (max-width:620px) {
     .wheel-col { display:none; }
     .mobile-list { display:flex; }
     .search { width:100%; }
     .topbar-right { width:100%; }
+
+    .detail-backdrop {
+      display:block; position:fixed; inset:0; background:rgba(10,11,16,0.45);
+      z-index:88; opacity:0; visibility:hidden; transition:opacity .25s ease, visibility .25s ease;
+    }
+    .detail-backdrop.show { opacity:1; visibility:visible; }
+
+    .detail-panel {
+      position:fixed; left:0; right:0; bottom:0; z-index:89; width:auto;
+      max-height:78vh; overflow-y:auto; border-radius:20px 20px 0 0;
+      padding:22px 22px calc(22px + env(safe-area-inset-bottom));
+      box-shadow:0 -10px 30px rgba(0,0,0,0.18);
+      transform:translateY(105%); transition:transform .28s cubic-bezier(.32,.72,0,1);
+    }
+    .detail-panel::before {
+      content:''; position:sticky; top:-6px; display:block; width:36px; height:4px;
+      border-radius:3px; background:var(--border-strong); margin:0 auto 14px;
+    }
+    .detail-panel.show { transform:translateY(0); }
+
+    .sheet-close-btn {
+      display:flex; position:absolute; top:14px; right:14px; z-index:2;
+      width:32px; height:32px; border-radius:50%; align-items:center; justify-content:center;
+      background:var(--panel-2); border:1px solid var(--border-strong); color:var(--text-dim); cursor:pointer;
+    }
   }
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
 
@@ -450,6 +509,13 @@
       </div>
     </div>
 
+    <!-- Cópia das guias só pra mobile (a de dentro da sidebar some com ela) -->
+    <div class="workspace-tabs workspace-tabs-mobile" id="workspaceTabsMobile">
+      <div class="workspace-tab active" data-ws="pessoal"><span class="material-symbols-outlined">home</span>Pessoal</div>
+      <div class="workspace-tab" data-ws="profissional"><span class="material-symbols-outlined">work</span>Profissional</div>
+      <div class="workspace-tab" data-ws="advocacia"><span class="material-symbols-outlined">gavel</span>Advocacia</div>
+    </div>
+
     <div class="status-strip">
       <div><span class="status-dot on"></span><b id="statusOnlineCount">7</b> apps com link ativo</div>
       <div><b id="favCountTop">0</b> favoritos</div>
@@ -463,6 +529,7 @@
         </div>
       </div>
       <div class="detail-panel" id="detailPanel"></div>
+      <div class="detail-backdrop" id="detailBackdrop"></div>
       <div class="mobile-list" id="mobileList"></div>
     </div>
 
@@ -825,6 +892,7 @@
     if (selected === null) {
       const favCount = apps.filter(a=>a.fav).length;
       panel.innerHTML = `
+        <button class="sheet-close-btn" id="detailSheetClose"><span class="material-symbols-outlined">close</span></button>
         <div class="detail-empty">
           <span class="material-symbols-outlined">touch_app</span>
           Clique em um app no anel ao lado pra ver detalhes, favoritar ou abrir.
@@ -833,12 +901,15 @@
             <div class="stat-chip"><b>${favCount}</b>favoritos</div>
           </div>
         </div>`;
+      document.getElementById('detailSheetClose').addEventListener('click', closeMobileSheet);
+      syncMobileSheet();
       return;
     }
     const app = apps[selected];
     const isEmpty = app.status === 'empty';
     const showFavicon = !isEmpty && !looksInternal(app.url);
     panel.innerHTML = `
+      <button class="sheet-close-btn" id="detailSheetClose"><span class="material-symbols-outlined">close</span></button>
       <div class="detail-head">
         <div class="detail-icon" style="background:${app.color}18;border-color:${app.color}88;">
           <span class="material-symbols-outlined" style="color:${app.color}">${app.icon}</span>
@@ -869,6 +940,7 @@
         </button>` : ''}
       </div>`;
 
+    document.getElementById('detailSheetClose').addEventListener('click', closeMobileSheet);
     if (!isEmpty) {
       document.getElementById('favBtn').addEventListener('click', () => { app.fav = !app.fav; saveFavorites(); renderDetail(); renderFavorites(); });
       document.getElementById('openBtn').addEventListener('click', () => window.open(app.url, '_blank', 'noopener'));
@@ -882,7 +954,27 @@
         });
       });
     }
+    syncMobileSheet();
   }
+
+  // No celular, o painel de detalhes vira uma gaveta que sobe de baixo em
+  // vez de empurrar a lista de apps pra fora da tela.
+  function syncMobileSheet() {
+    const isMobile = window.matchMedia('(max-width:620px)').matches;
+    const panel = document.getElementById('detailPanel');
+    const backdrop = document.getElementById('detailBackdrop');
+    const show = isMobile && selected !== null;
+    panel.classList.toggle('show', show);
+    backdrop.classList.toggle('show', show);
+  }
+  function closeMobileSheet() {
+    selected = null;
+    nodeEls.forEach(n => n.classList.remove('active'));
+    spokeEls.forEach(s => { s.el.style.width = '0px'; s.el.classList.remove('show'); });
+    renderDetail();
+    renderWheelCenter();
+  }
+  document.getElementById('detailBackdrop').addEventListener('click', closeMobileSheet);
 
   function renderFavorites() {
     const row = document.getElementById('favRow');
