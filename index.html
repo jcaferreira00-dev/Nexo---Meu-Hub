@@ -390,12 +390,21 @@
       <div class="modal-label" style="margin-top:14px;">Apps</div>
       <div class="modal-row" id="rowAddApp"><span><span class="material-symbols-outlined">add_circle</span> Adicionar novo app</span><span class="material-symbols-outlined">chevron_right</span></div>
 
+      <div class="modal-label" style="margin-top:14px;">Backup</div>
+      <div class="modal-row" id="rowExport"><span><span class="material-symbols-outlined">download</span> Exportar backup (JSON)</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <div class="modal-row" id="rowImport"><span><span class="material-symbols-outlined">upload</span> Importar backup (JSON)</span><span class="material-symbols-outlined">chevron_right</span></div>
+      <input type="file" id="importFileInput" accept="application/json" style="display:none;">
+      <div class="form-hint" style="margin:2px 2px 4px;">Exporta todos os apps das 3 guias num arquivo. Guarde ele em local seguro — é sua garantia caso perca acesso à conta ou ao aparelho.</div>
+
       <div class="modal-label" style="margin-top:14px;">Aparência</div>
       <div class="modal-row" id="rowTheme"><span><span class="material-symbols-outlined" id="rowThemeIcon">dark_mode</span> Alternar tema</span><span class="material-symbols-outlined">chevron_right</span></div>
 
       <div class="modal-label" style="margin-top:14px;">Sessão</div>
       <div class="modal-row danger" id="rowLogout"><span><span class="material-symbols-outlined">logout</span> Sair</span><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
+
+    <!-- Mensagem de status da importação/exportação -->
+    <div class="modal-msg" id="backupMsg" style="display:none;">&nbsp;</div>
 
     <!-- Login / criar conta -->
     <div class="modal-section" id="settingsAuthFlow" style="display:none;">
@@ -672,9 +681,13 @@
   const wrap = document.getElementById('wheelWrap');
   const svg = document.getElementById('wheelSvg');
   const svgNS = 'http://www.w3.org/2000/svg';
-  const size = 440, center = size/2;
-  const nodeRadius = 168;   // radius where both the arc centerline and icon nodes sit
-  const ringThickness = 84; // arc stroke width -> outer edge = nodeRadius + thickness/2
+  const wheelHole = document.getElementById('wheelHole');
+  // Até 10 apps numa guia, a roda mantém o tamanho de sempre. Acima disso,
+  // em vez de encolher os ícones/segmentos até eles invadirem a cor vizinha,
+  // é a roda inteira que cresce — mantendo o mesmo espaço (em px) por app.
+  const BASE_SIZE = 440, BASE_NODE_RADIUS = 168, BASE_RING = 84;
+  const BASE_COUNT = 10, MAX_SCALE = 1.6;
+  let size = BASE_SIZE, center = size / 2, nodeRadius = BASE_NODE_RADIUS, ringThickness = BASE_RING;
   let step = 360 / apps.length;
 
   let segEls = [], nodeEls = [], nodeInnerEls = [], spokeEls = [], dotEls = [];
@@ -690,6 +703,20 @@
   // partir do array `apps` atual. Chamada de novo toda vez que a guia de
   // workspace muda, para trocar os ícones mantendo o mesmo visual de roda.
   function buildWheel() {
+    // tamanho-base muda com a largura da tela (o CSS cuidava disso sozinho
+    // antes; agora o JS também precisa saber pra crescer a partir do valor certo)
+    const baseSizeNow = window.matchMedia('(max-width:1080px)').matches ? 380 : BASE_SIZE;
+    const scale = Math.min(MAX_SCALE, Math.max(1, apps.length / BASE_COUNT));
+    size = Math.round(baseSizeNow * scale);
+    center = size / 2;
+    nodeRadius = Math.round((BASE_NODE_RADIUS / BASE_SIZE) * size);
+    ringThickness = Math.round((BASE_RING / BASE_SIZE) * size);
+
+    wrap.style.width = size + 'px';
+    wrap.style.height = size + 'px';
+    svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+    wheelHole.style.inset = (center - (nodeRadius - ringThickness / 2)) + 'px';
+
     svg.innerHTML = '';
     wrap.querySelectorAll('.spoke, .app-node, .app-dot').forEach(el => el.remove());
     segEls = []; nodeEls = []; nodeInnerEls = []; spokeEls = []; dotEls = [];
@@ -1310,6 +1337,8 @@
   function openSettings() {
     settingsHome.style.display = '';
     settingsAuthFlow.style.display = 'none';
+    const bm = document.getElementById('backupMsg');
+    bm.style.display = 'none'; bm.textContent = '\u00a0'; bm.className = 'modal-msg';
     settingsModal.classList.add('show');
   }
   function closeSettings() { settingsModal.classList.remove('show'); }
@@ -1324,6 +1353,71 @@
   document.getElementById('rowAddApp').addEventListener('click', () => {
     closeSettings();
     addBlankAppSlot();
+  });
+
+  // ============== BACKUP — exportar / importar JSON ==============
+  function showBackupMsg(text, ok) {
+    const bm = document.getElementById('backupMsg');
+    bm.style.display = '';
+    bm.textContent = text;
+    bm.className = 'modal-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  document.getElementById('rowExport').addEventListener('click', () => {
+    const payload = { app: 'nexo-hub', exportedAt: new Date().toISOString(), workspaces };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `nexo-hub-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showBackupMsg('Backup baixado!', true);
+  });
+
+  document.getElementById('rowImport').addEventListener('click', () => {
+    document.getElementById('importFileInput').click();
+  });
+
+  document.getElementById('importFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    e.target.value = ''; // permite escolher o mesmo arquivo de novo depois
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      let parsed;
+      try { parsed = JSON.parse(reader.result); }
+      catch (err) { showBackupMsg('Esse arquivo não é um JSON válido.', false); return; }
+
+      // aceita tanto o formato exportado ({ workspaces: {...} }) quanto o
+      // objeto "workspaces" colado direto, pra ser tolerante com backups antigos
+      const incoming = parsed.workspaces || parsed;
+      const validKeys = Object.keys(workspaces).filter(
+        (ws) => incoming[ws] && Array.isArray(incoming[ws].apps)
+      );
+      if (!validKeys.length) {
+        showBackupMsg('Não achei dados de guias válidos nesse arquivo.', false);
+        return;
+      }
+
+      const resumo = validKeys.map((ws) => `${workspaces[ws].label}: ${incoming[ws].apps.length} apps`).join(' · ');
+      const ok = confirm(
+        `Importar este backup vai SUBSTITUIR os apps atuais por:\n${resumo}\n\nIsso não pode ser desfeito. Continuar?`
+      );
+      if (!ok) return;
+
+      validKeys.forEach((ws) => { workspaces[ws].apps = incoming[ws].apps; });
+      apps = workspaces[currentWs].apps;
+      persistData();
+      rebuildEverything();
+      showBackupMsg('Backup importado com sucesso!', true);
+    };
+    reader.onerror = () => showBackupMsg('Não consegui ler esse arquivo.', false);
+    reader.readAsText(file);
   });
 
   document.getElementById('rowLogin').addEventListener('click', () => {
@@ -1461,9 +1555,39 @@
     if (viewMode !== 'all') renderBlockView();
   });
 
+  // Paleta curada — 20 cores bem distintas entre si. Se um dia a guia tiver
+  // mais apps que isso, gera cores novas por rotação de matiz (ângulo áureo),
+  // garantindo que nunca repete mesmo além da paleta fixa.
+  const COLOR_POOL = [
+    '#E11D48','#F59E0B','#8B5CF6','#06B6D4','#10B981','#3B82F6','#EC4899','#65A30D',
+    '#F97316','#0EA5E9','#A855F7','#22C55E','#EF4444','#14B8A6','#6366F1','#D946EF',
+    '#84CC16','#0D9488','#F43F5E','#7C3AED'
+  ];
+  function hslToHex(h, s, l) {
+    s /= 100; l /= 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const toHex = (x) => Math.round(255 * x).toString(16).padStart(2, '0');
+    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`.toUpperCase();
+  }
+  function pickUniqueColor(ws) {
+    const used = new Set(workspaces[ws].apps.map((a) => (a.color || '').toUpperCase()));
+    const free = COLOR_POOL.find((c) => !used.has(c));
+    if (free) return free;
+    let hue = (used.size * 137.508) % 360;
+    let color = hslToHex(hue, 72, 56);
+    let guard = 0;
+    while (used.has(color) && guard < 50) {
+      hue = (hue + 137.508) % 360;
+      color = hslToHex(hue, 72, 56);
+      guard++;
+    }
+    return color;
+  }
+
   function addBlankAppSlot() {
-    const palette = ['#E11D48','#06B6D4','#EC4899','#6D5EF0','#F59E0B','#10B981','#3B82F6','#65A30D'];
-    const color = palette[workspaces[currentWs].apps.length % palette.length];
+    const color = pickUniqueColor(currentWs);
     workspaces[currentWs].apps.push({ name:'Novo app', sub:'Edite este card com nome, descrição, ícone e link.', icon:'add', color, status:'empty', last:'—', fav:false, url:'' });
     apps = workspaces[currentWs].apps;
     buildWheel(); updateWavePeriod(); updateStatusStrip(); renderDetail(); renderFavorites(); applyFilters();
