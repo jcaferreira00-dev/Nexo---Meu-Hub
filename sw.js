@@ -1,14 +1,13 @@
 // bump this whenever the offline app-shell list below changes
-const CACHE_VERSION = 'nexo-v5';
+const CACHE_VERSION = 'nexo-v6';
 const CACHE_NAME = `nexo-hub-${CACHE_VERSION}`;
 
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-512-maskable.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
