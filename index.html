@@ -75,7 +75,10 @@
   a { color: inherit; text-decoration: none; }
   .material-symbols-outlined { font-size: 20px; line-height: 1; user-select: none; }
 
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 80px; }
+  .wrap {
+    max-width: 1180px; margin: 0 auto;
+    padding: 0 calc(24px + env(safe-area-inset-right)) calc(80px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
+  }
 
   /* ---------- Topo ---------- */
   .top {
@@ -85,7 +88,10 @@
     border-bottom: 1px solid transparent; transition: border-color .2s;
   }
   .top.scrolled { border-bottom-color: var(--border); }
-  .top-inner { max-width: 1180px; margin: 0 auto; padding: 16px 24px 0; }
+  .top-inner {
+    max-width: 1180px; margin: 0 auto;
+    padding: calc(16px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 0 calc(24px + env(safe-area-inset-left));
+  }
   .top-row { display: flex; align-items: center; gap: 16px; }
 
   .brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -268,12 +274,13 @@
 
   /* ---------- Modais ---------- */
   .modal-overlay {
-    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;
+    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
     background: rgba(10,11,16,.5); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity .2s;
   }
   .modal-overlay.show { opacity: 1; pointer-events: auto; }
   .modal-card {
-    position: relative; width: 100%; max-width: 440px; max-height: calc(100vh - 32px); overflow-y: auto;
+    position: relative; width: 100%; max-width: 440px; max-height: calc(100vh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto;
     background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 20px;
     box-shadow: var(--shadow-lg); transform: translateY(10px) scale(.98); transition: transform .2s;
   }
@@ -351,7 +358,7 @@
   .discard-bar button.danger { color: #fff; background: var(--danger); border-color: var(--danger); }
 
   .toast {
-    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); z-index: 200;
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); z-index: 200;
     background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 500;
     opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; box-shadow: var(--shadow-lg);
   }
@@ -366,8 +373,11 @@
     .list-mode .tile-desc { padding-right: 0; }
   }
   @media (max-width: 720px) {
-    .wrap, .top-inner { padding-left: 16px; padding-right: 16px; }
-    .top-inner { padding-top: 12px; }
+    .wrap, .top-inner {
+      padding-left: calc(16px + env(safe-area-inset-left));
+      padding-right: calc(16px + env(safe-area-inset-right));
+    }
+    .top-inner { padding-top: calc(12px + env(safe-area-inset-top)); }
     .top-row { flex-wrap: wrap; gap: 10px; }
     .brand { flex: 1; }
     .search { order: 3; flex-basis: 100%; max-width: none; }
@@ -376,7 +386,7 @@
     .tabs-row .view-toggle { display: none; }
     #addBtn { display: none; }
     .fab {
-      display: flex; position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 30;
+      display: flex; position: fixed; right: calc(16px + env(safe-area-inset-right)); bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 30;
       width: 56px; height: 56px; padding: 0; border-radius: 18px; justify-content: center;
     }
     .fab .material-symbols-outlined { font-size: 26px; }
@@ -384,7 +394,7 @@
     .tab { flex: 1 1 auto; justify-content: center; padding: 10px 2px 12px; font-size: 13.5px; gap: 5px; }
     .tab .count { min-width: 18px; padding: 1px 5px; font-size: 11px; }
     .tab > .material-symbols-outlined { display: none; }
-    .wrap { padding-bottom: 110px; }
+    .wrap { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
     .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
     .tile { padding: 10px; gap: 10px; flex-wrap: wrap; }
     .tile .ico { width: 38px; height: 38px; }

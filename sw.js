@@ -1,5 +1,5 @@
 // bump this whenever the offline app-shell list below changes
-const CACHE_VERSION = 'nexo-v6';
+const CACHE_VERSION = 'nexo-v7';
 const CACHE_NAME = `nexo-hub-${CACHE_VERSION}`;
 
 const APP_SHELL = [
